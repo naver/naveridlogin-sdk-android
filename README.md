@@ -18,14 +18,6 @@ Android용 네이버 아이디로 로그인 라이브러리는 서드파티 애�
   * support-core-utils
   * customtabs
 
-## 샘플앱 실행환경
-
-네이버아이디로로그인 안드로이드 SDK의 실행환경은 다음과 같습니다.
-- Android studio 3.0
-- Gradle 4.1
-- JDK 8
-- Build Tool 26.0.2
-
 ## License
 
 See [LICENSE](https://github.com/naver/naveridlogin-sdk-android/blob/master/LICENSE) for full license text.

@@ -1,1 +1,1 @@
-include ':NaverOAuthSample', ':naveridlogin_android_sdk_4.2.0'
+include ':naveridlogin_android_sdk_sample', ':naveridlogin_android_sdk_4.2.0'
