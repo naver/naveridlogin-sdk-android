@@ -35,7 +35,9 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation project(path: ':naveridlogin_android_sdk_4.2.0')
+//    implementation files('libs/naveridlogin_android_sdk_4.2.0.aar') // import manually
+//    implementation project(path: ':naveridlogin_android_sdk_4.2.0') // import by Android studio
+    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.0'   // import from jcenter
 
     // naveridlogin dependencies
     def support_version = '25.3.1'
