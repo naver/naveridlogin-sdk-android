@@ -16,7 +16,7 @@ features to your application.
 * Need help?
   * http://forum.developers.naver.com/c/5-category
 
-## Dependent libararies
+## Dependent libraries
 
 Naver Login for Android uses libraries below.
 
