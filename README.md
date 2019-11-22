@@ -20,7 +20,7 @@ features to your application.
 
 Naver Login for Android uses libraries below.
 
-* Android support Library v25.3.1
+* Android support Library v28.0.0
   * appcompat-v7
   * support-v4
   * support-core-utils
@@ -28,7 +28,7 @@ Naver Login for Android uses libraries below.
 
 ---
 
-# 네이버 아이디로 로그인 안드로이드 SDK
+# 네이버 아이디로 로그인 Android SDK
 
 Android용 네이버 아이디로 로그인 라이브러리는 서드파티 애플리케이션에서 네이버 아이디로 로그인이 제공하는
 로그인, 로그아웃, 토큰 관리 등의 기능을 쉽게 구현할 수 있게 합니다.
@@ -42,9 +42,9 @@ Android용 네이버 아이디로 로그인 라이브러리는 서드파티 애�
 
 ## 사용하는 라이브러리
 
-네이버 아이디로 로그인 안드로이드 SDK에서 사용하는 라이브러리는 다음과 같습니다.
+네이버 아이디로 로그인 Android SDK에서 사용하는 라이브러리는 다음과 같습니다.
 
-* Android support Library v25.3.1
+* Android support Library v28.0.0
   * appcompat-v7
   * support-v4
   * support-core-utils
