@@ -20,11 +20,11 @@ features to your application.
 
 Naver Login for Android uses libraries below.
 
-* Android support Library v25.3.1
-  * appcompat-v7
+* AndroidX 1.0.0
+  * appcompat
   * support-v4
   * support-core-utils
-  * customtabs
+  * browser
 
 ---
 
@@ -44,11 +44,11 @@ Android용 네이버 아이디로 로그인 라이브러리는 서드파티 애�
 
 네이버 아이디로 로그인 안드로이드 SDK에서 사용하는 라이브러리는 다음과 같습니다.
 
-* Android support Library v25.3.1
-  * appcompat-v7
+* AndroidX 1.0.0
+  * appcompat
   * support-v4
   * support-core-utils
-  * customtabs
+  * browser
 
 ## License
 

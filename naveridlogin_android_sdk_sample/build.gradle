@@ -1,17 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.nhn.android.oauth.test"
-        minSdkVersion 9
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 40206
+        versionName '4.2.6'
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -35,20 +35,18 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-//    implementation files('libs/naveridlogin_android_sdk_4.2.5.aar') // import manually
+//    implementation files('libs/naveridlogin_android_sdk_4.2.6.aar') // import manually
 //    implementation project(path: ':naveridlogin_android_sdk') // import by Android studio
-    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.5'   // import from jcenter
+    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.6'   // import from jcenter
 
     // naveridlogin dependencies
-    def support_version = '25.3.1'
-    implementation "com.android.support:appcompat-v7:${support_version}"
-    implementation "com.android.support:support-core-utils:${support_version}"
-    implementation "com.android.support:customtabs:${support_version}"
-    implementation "com.android.support:support-v4:${support_version}"
+    def android_x_version = "1.0.0"
+    implementation "androidx.appcompat:appcompat:$android_x_version"
+    implementation "androidx.legacy:legacy-support-core-utils:$android_x_version"
+    implementation "androidx.browser:browser:$android_x_version"
+    implementation "androidx.legacy:legacy-support-v4:$android_x_version"
 
     testImplementation 'junit:junit:4.12'
 
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.1.0"
 }
