@@ -158,34 +158,21 @@ public class OAuthSampleActivity extends Activity {
 	};
 
 	public void onButtonClick(View v) throws Throwable {
-
-		switch (v.getId()) {
-			case R.id.buttonOAuth: {
-				mOAuthLoginInstance.startOauthLoginActivity(OAuthSampleActivity.this, mOAuthLoginHandler);
-				break;
-			}
-			case R.id.buttonVerifier: {
-				new RequestApiTask().execute();
-				break;
-			}
-			case R.id.buttonRefresh: {
-				new RefreshTokenTask().execute();
-				break;
-			}
-			case R.id.buttonOAuthLogout: {
-				mOAuthLoginInstance.logout(mContext);
-				updateView();
-				break;
-			}
-			case R.id.buttonOAuthDeleteToken: {
-				new DeleteTokenTask().execute();
-				break;
-			}
-			default:
-				break;
+		if (v.getId() == R.id.buttonOAuth) {
+			mOAuthLoginInstance.startOauthLoginActivity(OAuthSampleActivity.this, mOAuthLoginHandler);
+		} else if (v.getId() == R.id.buttonVerifier) {
+			new RequestApiTask().execute();
+		} else if (v.getId() == R.id.buttonRefresh) {
+			new RefreshTokenTask().execute();
+		} else if (v.getId() == R.id.buttonOAuthLogout) {
+			mOAuthLoginInstance.logout(mContext);
+			updateView();
+		} else if (v.getId() == R.id.buttonOAuthDeleteToken) {
+			new DeleteTokenTask().execute();
+		} else {
+			Log.e(TAG, "Unexpected view ID");
 		}
 	}
-
 
 	private class DeleteTokenTask extends AsyncTask<Void, Void, Void> {
 		@Override
