@@ -2,7 +2,6 @@ package com.nhn.android.oauth.test.activity;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +13,10 @@ import com.nhn.android.naverlogin.OAuthLogin;
 import com.nhn.android.naverlogin.OAuthLoginHandler;
 import com.nhn.android.naverlogin.ui.view.OAuthLoginButton;
 import com.nhn.android.oauth.test.R;
+
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /// 네이버 아이디로 로그인 샘플앱
 
@@ -30,33 +33,37 @@ public class OAuthSampleActivity extends Activity {
 	/**
 	 * client 정보를 넣어준다.
 	 */
-	private static String OAUTH_CLIENT_ID = "jyvqXeaVOVmV";
-	private static String OAUTH_CLIENT_SECRET = "527300A0_COq1_XV33cf";
-	private static String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
+	private static final String OAUTH_CLIENT_ID = "jyvqXeaVOVmV";
+	private static final String OAUTH_CLIENT_SECRET = "527300A0_COq1_XV33cf";
+	private static final String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
 
-	private static OAuthLogin mOAuthLoginInstance;
-	private static Context mContext;
+	private Context mContext;
 
 	/**
 	 * UI 요소들
 	 */
 	private TextView mApiResultText;
-	private static TextView mOauthAT;
-	private static TextView mOauthRT;
-	private static TextView mOauthExpires;
-	private static TextView mOauthTokenType;
-	private static TextView mOAuthState;
+	private TextView mOauthAT;
+	private TextView mOauthRT;
+	private TextView mOauthExpires;
+	private TextView mOauthTokenType;
+	private TextView mOAuthState;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private OAuthLoginButton mOAuthLoginButton;
+
+	private static OAuthLogin mOAuthLoginInstance;
+	private OAuthLoginHandler mOAuthLoginHandler;
+
+	private final ExecutorService mButtonTaskExecutor = Executors.newSingleThreadExecutor();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.naveroauthlogin_sample_main);
 
-
 		mContext = this;
-
+		mOAuthLoginHandler = new MyOAuthLoginHandler(this);
 
 		initData();
 		initView();
@@ -79,15 +86,15 @@ public class OAuthSampleActivity extends Activity {
 	}
 
 	private void initView() {
-		mApiResultText = (TextView) findViewById(R.id.api_result_text);
+		mApiResultText = findViewById(R.id.api_result_text);
 
-		mOauthAT = (TextView) findViewById(R.id.oauth_access_token);
-		mOauthRT = (TextView) findViewById(R.id.oauth_refresh_token);
-		mOauthExpires = (TextView) findViewById(R.id.oauth_expires);
-		mOauthTokenType = (TextView) findViewById(R.id.oauth_type);
-		mOAuthState = (TextView) findViewById(R.id.oauth_state);
+		mOauthAT = findViewById(R.id.oauth_access_token);
+		mOauthRT = findViewById(R.id.oauth_refresh_token);
+		mOauthExpires = findViewById(R.id.oauth_expires);
+		mOauthTokenType = findViewById(R.id.oauth_type);
+		mOAuthState = findViewById(R.id.oauth_state);
 
-		mOAuthLoginButton = (OAuthLoginButton) findViewById(R.id.buttonOAuthLoginImg);
+		mOAuthLoginButton = findViewById(R.id.buttonOAuthLoginImg);
 		mOAuthLoginButton.setOAuthLoginHandler(mOAuthLoginHandler);
 
 		updateView();
@@ -112,104 +119,96 @@ public class OAuthSampleActivity extends Activity {
 	/**
 	 * startOAuthLoginActivity() 호출시 인자로 넘기거나, OAuthLoginButton 에 등록해주면 인증이 종료되는 걸 알 수 있다.
 	 */
-	static private OAuthLoginHandler mOAuthLoginHandler = new OAuthLoginHandler() {
+	private static class MyOAuthLoginHandler extends OAuthLoginHandler {
+
+		WeakReference<OAuthSampleActivity> mActivityReference;
+
+		private final TextView mOauthAT;
+		private final TextView mOauthRT;
+		private final TextView mOauthExpires;
+		private final TextView mOauthTokenType;
+		private final TextView mOAuthState;
+
+		MyOAuthLoginHandler(OAuthSampleActivity context) {
+			mActivityReference = new WeakReference<>(context);
+
+			mOauthAT = mActivityReference.get().findViewById(R.id.oauth_access_token);
+			mOauthRT = mActivityReference.get().findViewById(R.id.oauth_refresh_token);
+			mOauthExpires = mActivityReference.get().findViewById(R.id.oauth_expires);
+			mOauthTokenType = mActivityReference.get().findViewById(R.id.oauth_type);
+			mOAuthState = mActivityReference.get().findViewById(R.id.oauth_state);
+		}
+
 		@Override
 		public void run(boolean success) {
 			if (success) {
-				String accessToken = mOAuthLoginInstance.getAccessToken(mContext);
-				String refreshToken = mOAuthLoginInstance.getRefreshToken(mContext);
-				long expiresAt = mOAuthLoginInstance.getExpiresAt(mContext);
-				String tokenType = mOAuthLoginInstance.getTokenType(mContext);
+				String accessToken = mOAuthLoginInstance.getAccessToken(mActivityReference.get());
+				String refreshToken = mOAuthLoginInstance.getRefreshToken(mActivityReference.get());
+				long expiresAt = mOAuthLoginInstance.getExpiresAt(mActivityReference.get());
+				String tokenType = mOAuthLoginInstance.getTokenType(mActivityReference.get());
 				mOauthAT.setText(accessToken);
 				mOauthRT.setText(refreshToken);
 				mOauthExpires.setText(String.valueOf(expiresAt));
 				mOauthTokenType.setText(tokenType);
-				mOAuthState.setText(mOAuthLoginInstance.getState(mContext).toString());
+				mOAuthState.setText(mOAuthLoginInstance.getState(mActivityReference.get()).toString());
 			} else {
-				String errorCode = mOAuthLoginInstance.getLastErrorCode(mContext).getCode();
-				String errorDesc = mOAuthLoginInstance.getLastErrorDesc(mContext);
-				Toast.makeText(mContext, "errorCode:" + errorCode + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
+				String errorCode = mOAuthLoginInstance.getLastErrorCode(mActivityReference.get()).getCode();
+				String errorDesc = mOAuthLoginInstance.getLastErrorDesc(mActivityReference.get());
+				Toast.makeText(mActivityReference.get(), "errorCode:" + errorCode + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
 			}
 		}
 
 	};
 
 	public void onButtonClick(View v) throws Throwable {
-
-		switch (v.getId()) {
-			case R.id.buttonOAuth: {
-				mOAuthLoginInstance.startOauthLoginActivity(OAuthSampleActivity.this, mOAuthLoginHandler);
-				break;
-			}
-			case R.id.buttonVerifier: {
-				new RequestApiTask().execute();
-				break;
-			}
-			case R.id.buttonRefresh: {
-				new RefreshTokenTask().execute();
-				break;
-			}
-			case R.id.buttonOAuthLogout: {
-				mOAuthLoginInstance.logout(mContext);
-				updateView();
-				break;
-			}
-			case R.id.buttonOAuthDeleteToken: {
-				new DeleteTokenTask().execute();
-				break;
-			}
-			default:
-				break;
+		if (v.getId() == R.id.buttonOAuth) {
+			mOAuthLoginInstance.startOauthLoginActivity(OAuthSampleActivity.this, mOAuthLoginHandler);
+		} else if (v.getId() == R.id.buttonVerifier) {
+			mButtonTaskExecutor.execute(createRequestApiTask());
+		} else if (v.getId() == R.id.buttonRefresh) {
+			mButtonTaskExecutor.execute(createRefreshButtonTask());
+		} else if (v.getId() == R.id.buttonOAuthLogout) {
+			mOAuthLoginInstance.logout(mContext);
+			updateView();
+		} else if (v.getId() == R.id.buttonOAuthDeleteToken) {
+			mButtonTaskExecutor.execute(createDeleteTokenTask());
+		} else {
+			Log.e(TAG, "Unexpected view ID");
 		}
 	}
 
-
-	private class DeleteTokenTask extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... params) {
+	private Runnable createDeleteTokenTask() {
+		return () -> {
+			// doInBackground
 			boolean isSuccessDeleteToken = mOAuthLoginInstance.logoutAndDeleteToken(mContext);
-
 			if (!isSuccessDeleteToken) {
 				// 서버에서 token 삭제에 실패했어도 클라이언트에 있는 token 은 삭제되어 로그아웃된 상태이다
 				// 실패했어도 클라이언트 상에 token 정보가 없기 때문에 추가적으로 해줄 수 있는 것은 없음
 				Log.d(TAG, "errorCode:" + mOAuthLoginInstance.getLastErrorCode(mContext));
 				Log.d(TAG, "errorDesc:" + mOAuthLoginInstance.getLastErrorDesc(mContext));
 			}
-
-			return null;
-		}
-
-		protected void onPostExecute(Void v) {
-			updateView();
-		}
+			// onPostExecute
+			runOnUiThread(this::updateView);
+		};
 	}
 
-	private class RequestApiTask extends AsyncTask<Void, Void, String> {
-		@Override
-		protected void onPreExecute() {
-			mApiResultText.setText((String) "");
-		}
-
-		@Override
-		protected String doInBackground(Void... params) {
+	private Runnable createRequestApiTask() {
+		return () -> {
+			// onPreExecute
+			runOnUiThread(() -> mApiResultText.setText(""));
+			// doInBackground
 			String url = "https://openapi.naver.com/v1/nid/me";
 			String at = mOAuthLoginInstance.getAccessToken(mContext);
-			return mOAuthLoginInstance.requestApi(mContext, at, url);
-		}
-
-		protected void onPostExecute(String content) {
-			mApiResultText.setText((String) content);
-		}
+			String content = mOAuthLoginInstance.requestApi(mContext, at, url);
+			// onPostExecute
+			runOnUiThread(() -> mApiResultText.setText(content));
+		};
 	}
 
-	private class RefreshTokenTask extends AsyncTask<Void, Void, String> {
-		@Override
-		protected String doInBackground(Void... params) {
-			return mOAuthLoginInstance.refreshAccessToken(mContext);
-		}
-
-		protected void onPostExecute(String res) {
-			updateView();
-		}
+	private Runnable createRefreshButtonTask() {
+		return () -> {
+			mOAuthLoginInstance.refreshAccessToken(mContext);
+			runOnUiThread(this::updateView);
+		};
 	}
 }

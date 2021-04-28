@@ -27,13 +27,13 @@
                 <TextView
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="AT" />
+                    android:text="@string/at" />
                 <TextView
                     android:id="@+id/oauth_access_token"
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="AT" />
+                    android:text="@string/at" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -43,13 +43,13 @@
                 <TextView
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="RT" />
+                    android:text="@string/rt" />
                 <TextView
                     android:id="@+id/oauth_refresh_token"
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="AT" />
+                    android:text="@string/rt" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -59,13 +59,13 @@
                 <TextView
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="expires" />
+                    android:text="@string/expires" />
                 <TextView
                     android:id="@+id/oauth_expires"
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="-1" />
+                    android:text="@string/_1" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -75,13 +75,13 @@
                 <TextView
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="type" />
+                    android:text="@string/type" />
                 <TextView
                     android:id="@+id/oauth_type"
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="bearer?" />
+                    android:text="@string/bearer" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -91,13 +91,13 @@
                 <TextView
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
-                    android:text="현재상태" />
+                    android:text="@string/current_state_korean" />
                 <TextView
                     android:id="@+id/oauth_state"
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="state?" />
+                    android:text="@string/current_state" />
             </LinearLayout>
         </LinearLayout>
 
@@ -122,15 +122,15 @@
             <Button
                 android:id="@+id/buttonOAuth"
                 style="@style/Button.Menu"
-                android:text="인증하기" />
+                android:text="@string/authenticate" />
             <Button
                 android:id="@+id/buttonOAuthLogout"
                 style="@style/Button.Menu"
-                android:text="로그아웃" />
+                android:text="@string/logout" />
             <Button
                 android:id="@+id/buttonOAuthDeleteToken"
                 style="@style/Button.Menu"
-                android:text="연동끊기" />
+                android:text="@string/disconnect" />
 
         </LinearLayout>
 
@@ -143,12 +143,12 @@
             <Button
                 android:id="@+id/buttonRefresh"
                 style="@style/Button.Menu"
-                android:text="토큰다시받기" />
+                android:text="@string/request_token_again" />
 
             <Button
                 android:id="@+id/buttonVerifier"
                 style="@style/Button.Menu"
-                android:text="API호출" />
+                android:text="@string/call_api" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
