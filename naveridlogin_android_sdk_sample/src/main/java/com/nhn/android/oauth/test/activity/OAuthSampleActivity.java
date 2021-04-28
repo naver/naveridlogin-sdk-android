@@ -83,15 +83,15 @@ public class OAuthSampleActivity extends Activity {
 	}
 
 	private void initView() {
-		mApiResultText = (TextView) findViewById(R.id.api_result_text);
+		mApiResultText = findViewById(R.id.api_result_text);
 
-		mOauthAT = (TextView) findViewById(R.id.oauth_access_token);
-		mOauthRT = (TextView) findViewById(R.id.oauth_refresh_token);
-		mOauthExpires = (TextView) findViewById(R.id.oauth_expires);
-		mOauthTokenType = (TextView) findViewById(R.id.oauth_type);
-		mOAuthState = (TextView) findViewById(R.id.oauth_state);
+		mOauthAT = findViewById(R.id.oauth_access_token);
+		mOauthRT = findViewById(R.id.oauth_refresh_token);
+		mOauthExpires = findViewById(R.id.oauth_expires);
+		mOauthTokenType = findViewById(R.id.oauth_type);
+		mOAuthState = findViewById(R.id.oauth_state);
 
-		mOAuthLoginButton = (OAuthLoginButton) findViewById(R.id.buttonOAuthLoginImg);
+		mOAuthLoginButton = findViewById(R.id.buttonOAuthLoginImg);
 		mOAuthLoginButton.setOAuthLoginHandler(mOAuthLoginHandler);
 
 		updateView();
