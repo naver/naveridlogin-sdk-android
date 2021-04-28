@@ -15,6 +15,8 @@ import com.nhn.android.naverlogin.OAuthLoginHandler;
 import com.nhn.android.naverlogin.ui.view.OAuthLoginButton;
 import com.nhn.android.oauth.test.R;
 
+import java.lang.ref.WeakReference;
+
 /// 네이버 아이디로 로그인 샘플앱
 
 /**
@@ -34,21 +36,23 @@ public class OAuthSampleActivity extends Activity {
 	private static final String OAUTH_CLIENT_SECRET = "527300A0_COq1_XV33cf";
 	private static final String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
 
-	private static OAuthLogin mOAuthLoginInstance;
-	private static Context mContext;
+	private Context mContext;
 
 	/**
 	 * UI 요소들
 	 */
 	private TextView mApiResultText;
-	private static TextView mOauthAT;
-	private static TextView mOauthRT;
-	private static TextView mOauthExpires;
-	private static TextView mOauthTokenType;
-	private static TextView mOAuthState;
+	private TextView mOauthAT;
+	private TextView mOauthRT;
+	private TextView mOauthExpires;
+	private TextView mOauthTokenType;
+	private TextView mOAuthState;
 
 	@SuppressWarnings("FieldCanBeLocal")
 	private OAuthLoginButton mOAuthLoginButton;
+
+	private static OAuthLogin mOAuthLoginInstance;
+	private OAuthLoginHandler mOAuthLoginHandler;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class OAuthSampleActivity extends Activity {
 		setContentView(R.layout.naveroauthlogin_sample_main);
 
 		mContext = this;
+		mOAuthLoginHandler = new MyOAuthLoginHandler(this);
 
 		initData();
 		initView();
@@ -111,23 +116,42 @@ public class OAuthSampleActivity extends Activity {
 	/**
 	 * startOAuthLoginActivity() 호출시 인자로 넘기거나, OAuthLoginButton 에 등록해주면 인증이 종료되는 걸 알 수 있다.
 	 */
-	static private OAuthLoginHandler mOAuthLoginHandler = new OAuthLoginHandler() {
+	private static class MyOAuthLoginHandler extends OAuthLoginHandler {
+
+		WeakReference<OAuthSampleActivity> mActivityReference;
+
+		private final TextView mOauthAT;
+		private final TextView mOauthRT;
+		private final TextView mOauthExpires;
+		private final TextView mOauthTokenType;
+		private final TextView mOAuthState;
+
+		MyOAuthLoginHandler(OAuthSampleActivity context) {
+			mActivityReference = new WeakReference<>(context);
+
+			mOauthAT = mActivityReference.get().findViewById(R.id.oauth_access_token);
+			mOauthRT = mActivityReference.get().findViewById(R.id.oauth_refresh_token);
+			mOauthExpires = mActivityReference.get().findViewById(R.id.oauth_expires);
+			mOauthTokenType = mActivityReference.get().findViewById(R.id.oauth_type);
+			mOAuthState = mActivityReference.get().findViewById(R.id.oauth_state);
+		}
+
 		@Override
 		public void run(boolean success) {
 			if (success) {
-				String accessToken = mOAuthLoginInstance.getAccessToken(mContext);
-				String refreshToken = mOAuthLoginInstance.getRefreshToken(mContext);
-				long expiresAt = mOAuthLoginInstance.getExpiresAt(mContext);
-				String tokenType = mOAuthLoginInstance.getTokenType(mContext);
+				String accessToken = mOAuthLoginInstance.getAccessToken(mActivityReference.get());
+				String refreshToken = mOAuthLoginInstance.getRefreshToken(mActivityReference.get());
+				long expiresAt = mOAuthLoginInstance.getExpiresAt(mActivityReference.get());
+				String tokenType = mOAuthLoginInstance.getTokenType(mActivityReference.get());
 				mOauthAT.setText(accessToken);
 				mOauthRT.setText(refreshToken);
 				mOauthExpires.setText(String.valueOf(expiresAt));
 				mOauthTokenType.setText(tokenType);
-				mOAuthState.setText(mOAuthLoginInstance.getState(mContext).toString());
+				mOAuthState.setText(mOAuthLoginInstance.getState(mActivityReference.get()).toString());
 			} else {
-				String errorCode = mOAuthLoginInstance.getLastErrorCode(mContext).getCode();
-				String errorDesc = mOAuthLoginInstance.getLastErrorDesc(mContext);
-				Toast.makeText(mContext, "errorCode:" + errorCode + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
+				String errorCode = mOAuthLoginInstance.getLastErrorCode(mActivityReference.get()).getCode();
+				String errorDesc = mOAuthLoginInstance.getLastErrorDesc(mActivityReference.get());
+				Toast.makeText(mActivityReference.get(), "errorCode:" + errorCode + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
 			}
 		}
 
