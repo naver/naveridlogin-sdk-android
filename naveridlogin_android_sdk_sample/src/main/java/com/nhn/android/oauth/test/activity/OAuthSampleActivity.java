@@ -30,9 +30,9 @@ public class OAuthSampleActivity extends Activity {
 	/**
 	 * client 정보를 넣어준다.
 	 */
-	private static String OAUTH_CLIENT_ID = "jyvqXeaVOVmV";
-	private static String OAUTH_CLIENT_SECRET = "527300A0_COq1_XV33cf";
-	private static String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
+	private static final String OAUTH_CLIENT_ID = "jyvqXeaVOVmV";
+	private static final String OAUTH_CLIENT_SECRET = "527300A0_COq1_XV33cf";
+	private static final String OAUTH_CLIENT_NAME = "네이버 아이디로 로그인";
 
 	private static OAuthLogin mOAuthLoginInstance;
 	private static Context mContext;
@@ -47,6 +47,7 @@ public class OAuthSampleActivity extends Activity {
 	private static TextView mOauthTokenType;
 	private static TextView mOAuthState;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private OAuthLoginButton mOAuthLoginButton;
 
 	@Override
@@ -54,9 +55,7 @@ public class OAuthSampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.naveroauthlogin_sample_main);
 
-
 		mContext = this;
-
 
 		initData();
 		initView();

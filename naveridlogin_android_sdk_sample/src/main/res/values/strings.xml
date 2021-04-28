@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">NaverOauthSample</string>
+    <string name="at">AT</string>
+    <string name="rt">RT</string>
+    <string name="expires">expires</string>
+    <string name="_1">-1</string>
+    <string name="type">type</string>
+    <string name="bearer">bearer?</string>
+    <string name="current_state_korean">현재상태</string>
+    <string name="current_state">state?</string>
+    <string name="authenticate">인증하기</string>
+    <string name="logout">로그아웃</string>
+    <string name="disconnect">연동끊기</string>
+    <string name="request_token_again">토큰다시받기</string>
+    <string name="call_api">API호출</string>
 </resources>
