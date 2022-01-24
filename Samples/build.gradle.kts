@@ -43,14 +43,13 @@ android {
 dependencies {
     /* 네아로 SDK from Project */
     implementation(project(":Nid-OAuth"))
+    /* 네아로 SDK from MavenCentral */
+    implementation("com.navercorp.nid:oauth:5.0.0")
 
     Dependencies.Kotlin.run {
         implementation(stdLib)
         implementation(coroutines)
     }
-
-    /* 네아로 SDK from Maven */
-//    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.6'
 
     implementation("androidx.multidex:multidex:2.0.1")
 

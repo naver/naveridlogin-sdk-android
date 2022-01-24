@@ -1,4 +1,4 @@
-rootProject.name ="naverid-3rdparty-sdk-android"
+rootProject.name ="naveridlogin-sdk-android"
 
 include (
     ":Nid-OAuth",

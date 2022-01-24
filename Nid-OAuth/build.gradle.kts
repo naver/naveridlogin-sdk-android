@@ -8,8 +8,6 @@ android {
     compileSdk = Configurations.compileSdkVersion
     buildToolsVersion = Configurations.buildToolsVersion
 
-//    testOptions.unitTests.includeAndroidResources = true
-
     defaultConfig {
         targetSdk = Configurations.targetSdkVersion
         minSdk = Configurations.minSdkVersion
