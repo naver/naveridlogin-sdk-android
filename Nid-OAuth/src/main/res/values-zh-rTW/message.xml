@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="use_application">開啟方式</string>
+    <string name="retry">再試</string>
+
+    <string name="naveroauthlogin_string_getting_token">正在使用NAVER ID登入</string>
+    <string name="naveroauthlogin_string_network_state_not_available">網絡有問題，無法登入。
+您要再試嗎？</string>
+    <string name="naveroauthlogin_string_msg_naverapp_download_desc">通過NAVER App 便捷登錄</string>
+    <string name="naveroauthlogin_string_msg_naverapp_download_link">下載APP</string>
+    <string name="naveroauthlogin_string_token_invalid">快速登入已解除，須重新登入。</string>
+    <string name="naveroauthlogin_string_group_id_not_available">群組帳號不支持NAVER ID登入，請使用個人帳號登入。</string>
+    <string name="naveroauthlogin_string_update_naverapp">更新NAVER App
+即可使用。</string>
+
+    <string name="naveroauthlogin_string_browser_app_issue">Your device must have a browser app.</string>
+</resources>

@@ -11,44 +11,68 @@ It is a convenient and secure way for users to log into your application with th
 The NAVER Login library for Android enables you to easily add the login, logout, and token management
 features to your application.
 
-* How to use NaverIdLogin SDK for Android? <small>(korean)</small>
-  * https://developers.naver.com/docs/login/android
-* Need help?
-  * http://forum.developers.naver.com/c/5-category
+**How to use NaverIdLogin SDK for Android? <small>(korean)</small>**
+- [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.0.0-%EC%9D%B4%EC%83%81-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- https://developers.naver.com/docs/login/android
+
+**Need help?**
+- http://forum.developers.naver.com/c/5-category
 
 ## Dependent libraries
 
 Naver Login for Android uses libraries below.
 
-* Android support Library v28.0.0
-  * appcompat-v7
-  * support-v4
-  * support-core-utils
-  * customtabs
+- org.jetbrains.kotlin:kotlin-stdlib:1.6.10
+- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
+- androidx.appcompat:appcompat:1.0.0
+- androidx.legacy:legacy-support-core-utils:1.0.0
+- androidx.browser:browser:1.0.0
+- androidx.legacy:legacy-support-v4:1.0.0
+- androidx.constraintlayout:constraintlayout:1.1.3
+- androidx.security:security-crypto:1.1.0-alpha03
+- androidx.core:core-ktx:1.3.0
+- com.squareup.retrofit2:retrofit:2.9.0
+- com.squareup.retrofit2:converter-gson:2.9.0
+- com.squareup.moshi:moshi-kotlin:1.11.0
+- com.squareup.okhttp3:logging-interceptor:4.2.1
+- com.airbnb.android:lottie:3.1.0
 
----
+----
 
-# 네이버 아이디로 로그인 Android SDK
+# 네아로SDK for Android (네이버 아이디로 로그인 SDK)
 
-Android용 네이버 아이디로 로그인 라이브러리는 서드파티 애플리케이션에서 네이버 아이디로 로그인이 제공하는
-로그인, 로그아웃, 토큰 관리 등의 기능을 쉽게 구현할 수 있게 합니다.
+Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아이디로 로그인이 제공하는 로그인, 로그아웃, 토큰 관리 등의 기능을 쉽게 구현할 수 있게 합니다.
 
-* 네이버 아이디로 로그인이란?
-  * https://developers.naver.com/docs/login/overview
-* 네이버 아이디로 로그인 SDK 적용가이드
-  * https://developers.naver.com/docs/login/android
-* 네이버 아이디로 로그인 문의
-  * http://forum.developers.naver.com/c/5-category
+**네이버 아이디로 로그인이란?**
+- https://developers.naver.com/docs/login/overview
+
+**네이버 아이디로 로그인 SDK 적용가이드**
+- [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.0.0-%EC%9D%B4%EC%83%81-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- https://developers.naver.com/docs/login/android
+
+**네이버 아이디로 로그인 문의**
+- http://forum.developers.naver.com/c/5-category
 
 ## 사용하는 라이브러리
 
-네이버 아이디로 로그인 Android SDK에서 사용하는 라이브러리는 다음과 같습니다.
+네아로 SDK에서 사용하는 라이브러리는 다음과 같습니다.
 
-* Android support Library v28.0.0
-  * appcompat-v7
-  * support-v4
-  * support-core-utils
-  * customtabs
+- org.jetbrains.kotlin:kotlin-stdlib:1.6.10
+- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
+- androidx.appcompat:appcompat:1.0.0
+- androidx.legacy:legacy-support-core-utils:1.0.0
+- androidx.browser:browser:1.0.0
+- androidx.legacy:legacy-support-v4:1.0.0
+- androidx.constraintlayout:constraintlayout:1.1.3
+- androidx.security:security-crypto:1.1.0-alpha03
+- androidx.core:core-ktx:1.3.0
+- com.squareup.retrofit2:retrofit:2.9.0
+- com.squareup.retrofit2:converter-gson:2.9.0
+- com.squareup.moshi:moshi-kotlin:1.11.0
+- com.squareup.okhttp3:logging-interceptor:4.2.1
+- com.airbnb.android:lottie:3.1.0
+
+----
 
 ## License
 

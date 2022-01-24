@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="client_list">
+        <item>네이버아이디로로그인</item>
+        <item>소셜게임(12G)</item>
+        <item>ERROR_NO_NAME</item>
+        <item>ERROR_CLIENT_ID</item>
+        <item>ERROR_CLIENT_SECRET</item>
+    </string-array>
+</resources>
