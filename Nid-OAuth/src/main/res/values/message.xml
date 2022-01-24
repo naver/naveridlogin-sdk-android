@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="use_application">Open with</string>
+    <string name="retry">Retry</string>
+
+    <string name="naveroauthlogin_string_getting_token">Sign in with NAVER</string>
+    <string name="naveroauthlogin_string_network_state_not_available">Network is not available. Please check your network connection and try again.</string>
+    <string name="naveroauthlogin_string_msg_naverapp_download_desc">Get NAVER App and sign in faster</string>
+    <string name="naveroauthlogin_string_msg_naverapp_download_link">Download App</string>
+    <string name="naveroauthlogin_string_token_invalid">Quick Sign-in account has been expired.</string>
+    <string name="naveroauthlogin_string_group_id_not_available">Group ID can\'t be used to \'Sign in with NAVER\'. Please sign in as a normal account.</string>
+    <string name="naveroauthlogin_string_update_naverapp">Please update your Naver app to use this service.</string>
+
+    <string name="naveroauthlogin_string_browser_app_issue">Your device must have a browser app.</string>
+
+
+</resources>
