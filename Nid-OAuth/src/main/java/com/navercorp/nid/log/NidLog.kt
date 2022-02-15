@@ -13,7 +13,7 @@ import com.nhn.android.oauth.BuildConfig
  * 네아로SDK에서 사용하는 Logger 클래스
  */
 object NidLog {
-    private lateinit var instance: INidLog
+    private var instance: INidLog = ReleaseNidLog()
 
     fun init() {
         instance = if (BuildConfig.BUILD_TYPE.equals("debug", ignoreCase = true)) {

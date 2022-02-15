@@ -102,7 +102,7 @@ class LegacyActivity : AppCompatActivity() {
 
         // 로그아웃
         binding.logout.setOnClickListener {
-            NidOAuthLogin().logout()
+            NaverIdLoginSDK.logout()
             updateView()
         }
 

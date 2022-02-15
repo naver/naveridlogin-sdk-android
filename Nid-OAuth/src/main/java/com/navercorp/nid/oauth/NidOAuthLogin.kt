@@ -126,11 +126,11 @@ class NidOAuthLogin {
             } catch (t: Throwable) {
                 errorHandling(throwable = t)
                 callback.onError(-1, t.toString())
-                logout()
+                NaverIdLoginSDK.logout()
                 return@launch
             }
 
-            logout()
+            NaverIdLoginSDK.logout()
 
             var isSuccess = false
             response.body()?.let {
@@ -190,17 +190,6 @@ class NidOAuthLogin {
                 }
             }
         }
-    }
-
-    /// 클라이언트에 저장되어 있는 Access token 및 Refresh token을 삭제함
-    fun logout() {
-        NidOAuthPreferencesManager.apply {
-            accessToken = ""
-            refreshToken = ""
-            lastErrorCode = NidOAuthErrorCode.NONE
-            lastErrorDesc = ""
-        }
-
     }
 
     fun refreshToken(context: Context, callback: OAuthLoginCallback) {
