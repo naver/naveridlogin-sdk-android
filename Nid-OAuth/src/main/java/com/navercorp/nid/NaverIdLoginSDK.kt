@@ -3,7 +3,6 @@ package com.navercorp.nid
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.*
 
@@ -103,6 +102,19 @@ object NaverIdLoginSDK {
         } else {
             NidOAuthLogin().refreshToken(context, callback)
         }
+    }
+
+    /**
+     * 클라이언트에 저장되어 있는 Access token 및 Refresh token을 삭제함
+     */
+    fun logout() {
+        NidOAuthPreferencesManager.apply {
+            accessToken = ""
+            refreshToken = ""
+            lastErrorCode = NidOAuthErrorCode.NONE
+            lastErrorDesc = ""
+        }
+
     }
 
     /**

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.nhn.android.oauth" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -18,12 +18,6 @@
     </queries>
 
     <application>
-
-<!--        <activity-->
-<!--            android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:theme="@style/Theme.AppCompat.Light.Dialog" />-->
-
 
         <activity
             android:name="com.navercorp.nid.oauth.NidOAuthBridgeActivity"

@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 
         // 로그아웃
         binding.logout.setOnClickListener {
-            NidOAuthLogin().logout()
+            NaverIdLoginSDK.logout()
             updateView()
         }
 
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                
+
                 override fun onError(errorCode: Int, message: String) {
                     onFailure(errorCode, message)
                 }
