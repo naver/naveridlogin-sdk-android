@@ -1,6 +1,7 @@
 package com.navercorp.nid.oauth.view
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -158,8 +159,17 @@ class DownloadBanner : LinearLayout {
 
     private fun downloadNaverapp() {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.nhn.android.search"))
-        (context as Activity).startActivity(intent)
-        (context as Activity).finish()
+        try {
+            (context as Activity).startActivity(intent)
+            (context as Activity).finish()
+        } catch (e: ActivityNotFoundException) {
+            val webIntent = Intent(Intent.ACTION_VIEW)
+            webIntent.data = Uri.parse("https://play.google.com/store/apps/details?id=com.nhn.android.search")
+            if (webIntent.resolveActivity(context.packageManager) != null) {
+                (context as Activity).startActivity(webIntent)
+                (context as Activity).finish()
+            }
+        }
     }
 
     private fun Int.toDp(): Int = (this * density).toInt()

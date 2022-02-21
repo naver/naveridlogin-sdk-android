@@ -15,6 +15,11 @@
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
         <package android:name="com.android.chrome"/>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <application>
@@ -28,7 +33,8 @@
             android:name="com.navercorp.nid.oauth.activity.NidOAuthWebViewActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="behind"
-            android:label="OAuth2.0 by WebView" />
+	        android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:label="OAuth2.0 by WebView"/>
 
         <activity
             android:name="com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity"
