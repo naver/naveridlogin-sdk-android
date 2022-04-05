@@ -1,6 +1,7 @@
 package com.navercorp.nid.profile.api
 
 import com.navercorp.nid.oauth.NidOAuthConstants
+import com.navercorp.nid.oauth.api.NetworkConnectionInterceptor
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.nhn.android.oauth.BuildConfig
 import okhttp3.OkHttpClient
@@ -28,6 +29,7 @@ interface NidProfileService {
             .readTimeout(NidOAuthConstants.TIME_OUT, TimeUnit.MILLISECONDS)
             .connectTimeout(NidOAuthConstants.TIME_OUT, TimeUnit.MILLISECONDS)
             .apply {
+                addInterceptor(NetworkConnectionInterceptor())
                 if (BuildConfig.DEBUG) {
                     addInterceptor(
                         HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)

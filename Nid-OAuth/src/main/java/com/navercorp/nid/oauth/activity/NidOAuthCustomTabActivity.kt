@@ -10,6 +10,7 @@ import com.navercorp.nid.oauth.NidOAuthErrorCode
 import com.navercorp.nid.oauth.NidOAuthIntent
 import com.navercorp.nid.oauth.NidOAuthQuery
 import com.navercorp.nid.oauth.plugin.NidOAuthWebViewPlugin.getDecodedString
+import kotlinx.coroutines.*
 
 class NidOAuthCustomTabActivity : AppCompatActivity() {
 
@@ -20,6 +21,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
     private lateinit var oauthUrl: String
     private var isCustomTabOpen = false
+    private var isCalledNewIntent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +43,13 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         super.onResume()
 
         if (isCustomTabOpen) {
-            return responseError(null, NidOAuthErrorCode.CLIENT_USER_CANCEL.code, NidOAuthErrorCode.CLIENT_USER_CANCEL.description)
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(500)
+                if (!isCalledNewIntent) {
+                    responseError(null, NidOAuthErrorCode.CLIENT_USER_CANCEL.code, NidOAuthErrorCode.CLIENT_USER_CANCEL.description)
+                }
+            }
+            return
         }
         openCustomTab()
     }
@@ -58,6 +66,8 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+        isCalledNewIntent = true
+
         if (intent == null) {
             return
         }

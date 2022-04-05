@@ -44,7 +44,7 @@ dependencies {
     /* 네아로 SDK from Project */
     implementation(project(":Nid-OAuth"))
     /* 네아로 SDK from MavenCentral */
-    implementation("com.navercorp.nid:oauth:5.0.1")
+    implementation("com.navercorp.nid:oauth:5.1.0")
 
     Dependencies.Kotlin.run {
         implementation(stdLib)

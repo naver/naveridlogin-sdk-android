@@ -39,6 +39,11 @@ object NaverIdLoginSDK {
     lateinit var oauthLoginCallback: OAuthLoginCallback
 
     /**
+     * Application Context
+     */
+    lateinit var applicationContext: Context
+
+    /**
      * OAuth 인증시 필요한 값들을 preference에 저장함. 2015년 8월 이후에 등록하여 package name 을 넣은 경우 사용.
      * @param context shared Preference를 얻어올 때 사용할 context
      * @param clientId OAuth client id 값
@@ -62,6 +67,9 @@ object NaverIdLoginSDK {
 
         // 3. Log Prefix 초기화
         NidLog.setPrefix("NaverIdLogin|${context.packageName}|")
+
+        // 4. Application Context 저장
+        applicationContext = context.applicationContext
     }
 
     /**
@@ -95,9 +103,11 @@ object NaverIdLoginSDK {
 
         val refreshToken = getRefreshToken()
         if (refreshToken.isNullOrEmpty()) {
-            val intent = Intent(context, NidOAuthBridgeActivity::class.java)
             val orientation = context.resources.configuration.orientation
-            intent.putExtra("orientation", orientation)
+            val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+                putExtra("orientation", orientation)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             context.startActivity(intent)
         } else {
             NidOAuthLogin().refreshToken(context, callback)

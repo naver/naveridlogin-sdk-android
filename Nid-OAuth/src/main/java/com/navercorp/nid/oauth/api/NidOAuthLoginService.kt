@@ -69,6 +69,7 @@ interface NidOAuthLoginService {
             .readTimeout(NidOAuthConstants.TIME_OUT, TimeUnit.MILLISECONDS)
             .connectTimeout(NidOAuthConstants.TIME_OUT, TimeUnit.MILLISECONDS)
             .apply {
+                addInterceptor(NetworkConnectionInterceptor())
                 if (BuildConfig.DEBUG) {
                     addInterceptor(
                         HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.exception.NoConnectivityException
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.api.NidOAuthApi
 import com.navercorp.nid.oauth.data.NidOAuthResponse
@@ -13,9 +14,7 @@ import com.navercorp.nid.profile.data.NidProfileResponse
 import com.navercorp.nid.progress.NidProgressDialog
 import com.nhn.android.naverlogin.OAuthLogin
 import com.nhn.android.oauth.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketException
@@ -24,13 +23,17 @@ import javax.net.ssl.*
 
 class NidOAuthLogin {
 
-    private val TAG = "NidOAuthLogin"
+    companion object {
+        const val TAG = "NidOAuthLogin"
+    }
 
     private suspend fun requestAccessToken(context: Context, callback: OAuthLoginCallback): NidOAuthResponse? {
 
         val response: Response<NidOAuthResponse>
         try {
-            response = NidOAuthApi().requestAccessToken(context)
+            response = withContext(Dispatchers.IO) {
+                NidOAuthApi().requestAccessToken(context)
+            }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
             callback.onError(-1, t.toString())
@@ -77,7 +80,9 @@ class NidOAuthLogin {
 
         val response: Response<NidOAuthResponse>
         try {
-            response = NidOAuthApi().requestRefreshToken(context)
+            response = withContext(Dispatchers.IO) {
+                NidOAuthApi().requestRefreshToken(context)
+            }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
             callback.onError(-1, t.toString())
@@ -112,82 +117,79 @@ class NidOAuthLogin {
         return response.body()?.accessToken
     }
 
-    fun callRefreshAccessTokenApi(context: Context, callback: OAuthLoginCallback) {
-        CoroutineScope(Dispatchers.Main).launch {
-            requestRefreshAccessToken(context, callback)
-        }
+    fun callRefreshAccessTokenApi(context: Context, callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
+        requestRefreshAccessToken(context, callback)
     }
 
-    fun callDeleteTokenApi(context: Context, callback: OAuthLoginCallback) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val response: Response<NidOAuthResponse>
-            try {
-                response = NidOAuthApi().deleteToken(context)
-            } catch (t: Throwable) {
-                errorHandling(throwable = t)
-                callback.onError(-1, t.toString())
-                NaverIdLoginSDK.logout()
-                return@launch
+    fun callDeleteTokenApi(context: Context, callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
+        val response: Response<NidOAuthResponse>
+        try {
+            response = withContext(Dispatchers.IO) {
+                NidOAuthApi().deleteToken(context)
             }
-
+        } catch (t: Throwable) {
+            errorHandling(throwable = t)
+            callback.onError(-1, t.toString())
+            return@launch
+        } finally {
             NaverIdLoginSDK.logout()
+        }
 
-            var isSuccess = false
-            response.body()?.let {
-                if ("success".equals(it.result, ignoreCase = true)) {
-                    isSuccess = true
+        var isSuccess = false
+        response.body()?.let {
+            if ("success".equals(it.result, ignoreCase = true)) {
+                isSuccess = true
+            }
+        }
+
+        when (response.code()) {
+            in 200 until 300 -> {
+                val res = response.body()
+                if (res != null) {
+                    if (!isSuccess) {
+                        NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.fromString(res.error)
+                        NidOAuthPreferencesManager.lastErrorDesc = res.errorDescription ?: ""
+                    }
+                }
+                when (isSuccess) {
+                    true -> callback.onSuccess()
+                    false -> callback.onFailure(response.code(), response.message())
                 }
             }
-
-            when (response.code()) {
-                in 200 until 300 -> {
-                    val res = response.body()
-                    if (res != null) {
-                        if (!isSuccess) {
-                            NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.fromString(res.error)
-                            NidOAuthPreferencesManager.lastErrorDesc = res.errorDescription ?: ""
-                        }
-                    }
-                    when (isSuccess) {
-                        true -> callback.onSuccess()
-                        false -> callback.onFailure(response.code(), response.message())
-                    }
-                }
-                in 400 until 500 -> callback.onFailure(response.code(), response.message())
-                else -> {
-                    errorHandling(errorCode = response.code())
-                    callback.onError(response.code(), response.message())
-                }
+            in 400 until 500 -> callback.onFailure(response.code(), response.message())
+            else -> {
+                errorHandling(errorCode = response.code())
+                callback.onError(response.code(), response.message())
             }
         }
     }
 
-    fun callProfileApi(callback: NidProfileCallback<NidProfileResponse>) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val response: Response<NidProfileResponse>
-            try {
-                response = NidProfileApi().requestApi()
-            } catch (t: Throwable) {
-                errorHandling(throwable = t)
-                callback.onError(-1, t.toString())
-                return@launch
+    fun callProfileApi(callback: NidProfileCallback<NidProfileResponse>) = CoroutineScope(Dispatchers.Main).launch {
+        val response: Response<NidProfileResponse>
+        try {
+            response = withContext(Dispatchers.IO) {
+                NidProfileApi().requestApi()
             }
+        } catch (t: Throwable) {
+            errorHandling(throwable = t)
+            callback.onError(-1, t.toString())
+            return@launch
+        }
 
-            val res = response.body()
+        val res = response.body()
 
-            when (response.code()) {
-                in 200 until 300 -> {
-                    if (res?.profile != null && !res.profile.id.isNullOrEmpty()) {
-                        callback.onSuccess(res)
-                    } else {
-                        callback.onFailure(response.code(), "${res?.resultCode ?: ""} ${res?.message ?: ""}")
-                    }
+        when (response.code()) {
+            in 200 until 300 -> {
+                if (res?.profile != null && !res.profile.id.isNullOrEmpty()) {
+                    callback.onSuccess(res)
+                } else {
+                    callback.onFailure(response.code(), "${res?.resultCode ?: ""} ${res?.message ?: ""}")
                 }
-                in 400 until 500 -> callback.onFailure(response.code(), response.message())
-                else -> {
-                    errorHandling(errorCode = response.code())
-                    callback.onError(response.code(), response.message())
-                }
+            }
+            in 400 until 500 -> callback.onFailure(response.code(), response.message())
+            else -> {
+                errorHandling(errorCode = response.code())
+                callback.onError(response.code(), response.message())
             }
         }
     }
@@ -215,8 +217,11 @@ class NidOAuthLogin {
             progressDialog.hideProgress()
 
             if (at.isNullOrEmpty()) {
-                val intent = Intent(context, NidOAuthBridgeActivity::class.java)
-                intent.putExtra("orientation", OAuthLogin.getInstance().getOrientation(context))
+                val orientation = context.resources.configuration.orientation
+                val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+                    putExtra("orientation", orientation)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
                 context.startActivity(intent)
             } else {
                 callback.onSuccess()
@@ -233,12 +238,10 @@ class NidOAuthLogin {
             val res = requestAccessToken(context, NaverIdLoginSDK.oauthLoginCallback)
             progressDialog.hideProgress()
 
-            var isSuccess = false
-
             res?.let {
-                isSuccess = res.error.isNullOrEmpty() && !res.accessToken.isNullOrEmpty()
+                val isSuccess = it.error.isNullOrEmpty() && !it.accessToken.isNullOrEmpty()
 
-                if(!isSuccess && (NidOAuthErrorCode.NONE == NidOAuthErrorCode.fromString(res.error))){
+                if(!isSuccess && (NidOAuthErrorCode.NONE == NidOAuthErrorCode.fromString(it.error))){
                     val errorCode = NidOAuthErrorCode.CLIENT_USER_CANCEL
                     NidOAuthPreferencesManager.lastErrorCode = errorCode
                     NidOAuthPreferencesManager.lastErrorDesc = errorCode.description
@@ -252,7 +255,7 @@ class NidOAuthLogin {
 
     private fun errorHandling(throwable: Throwable) {
         when (throwable) {
-            is IOException, is SocketTimeoutException, is SocketException -> {
+            is NoConnectivityException, is IOException, is SocketTimeoutException, is SocketException -> {
                 NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.CLIENT_ERROR_CONNECTION_ERROR
                 NidOAuthPreferencesManager.lastErrorDesc = NidOAuthErrorCode.CLIENT_ERROR_CONNECTION_ERROR.description
             }
