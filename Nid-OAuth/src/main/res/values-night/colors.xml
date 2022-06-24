@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Progress Dialog -->
+    <color name="nid_progress_dialog_background">#48484B</color>
+    <color name="nid_progress_dialog_text">#DADDE0</color>
+
+</resources>
