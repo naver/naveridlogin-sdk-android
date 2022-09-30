@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
@@ -34,6 +35,19 @@ class LegacyActivity : AppCompatActivity() {
     private var clientSecret = "527300A0_COq1_XV33cf"
     private var clientName = "네이버 아이디로 로그인"
 
+    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        when(result.resultCode) {
+            RESULT_OK -> {
+                updateView()
+            }
+            RESULT_CANCELED -> {
+                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                Toast.makeText(context, "errorCode:$errorCode, errorDesc:$errorDescription", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // View Binding
@@ -54,7 +68,7 @@ class LegacyActivity : AppCompatActivity() {
             setShowingBottomTab(true)
         }
 
-        binding.buttonOAuthLoginImg.setOAuthLoginCallback(object : OAuthLoginCallback {
+        binding.buttonOAuthLoginImg.setOAuthLogin(launcher, object : OAuthLoginCallback {
             override fun onSuccess() {
                 updateView()
             }
@@ -78,7 +92,7 @@ class LegacyActivity : AppCompatActivity() {
         // 로그인
         binding.login.setOnClickListener {
             OAuthLogin.getInstance().initializeLoginFlag()
-            OAuthLogin.getInstance().startOauthLoginActivity(this, object : OAuthLoginCallback {
+            OAuthLogin.getInstance().startOauthLoginActivity(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -187,7 +201,7 @@ class LegacyActivity : AppCompatActivity() {
         // 네이버앱 로그인
         binding.loginWithNaverapp.setOnClickListener {
             OAuthLogin.getInstance().enableNaverAppLoginOnly()
-            OAuthLogin.getInstance().startOauthLoginActivity(this, object : OAuthLoginCallback {
+            OAuthLogin.getInstance().startOauthLoginActivity(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -213,7 +227,7 @@ class LegacyActivity : AppCompatActivity() {
         binding.loginWithCustomtabs.setOnClickListener {
             OAuthLogin.getInstance().enableCustomTabLoginOnly()
             OAuthLogin.getInstance().setCustomTabReAuth(false) // 무조건 재인증시 true
-            OAuthLogin.getInstance().startOauthLoginActivity(this, object : OAuthLoginCallback {
+            OAuthLogin.getInstance().startOauthLoginActivity(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -238,7 +252,7 @@ class LegacyActivity : AppCompatActivity() {
         // 웹뷰 로그인
         binding.loginWithWebView.setOnClickListener {
             OAuthLogin.getInstance().enableWebViewLoginOnly()
-            OAuthLogin.getInstance().startOauthLoginActivity(this, object : OAuthLoginCallback {
+            OAuthLogin.getInstance().startOauthLoginActivity(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }

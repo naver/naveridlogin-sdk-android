@@ -36,6 +36,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
         oauthUrl = NidOAuthQuery.Builder(this)
             .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
+            .setAuthType(intent.getStringExtra("auth_type"))
             .build()
     }
 

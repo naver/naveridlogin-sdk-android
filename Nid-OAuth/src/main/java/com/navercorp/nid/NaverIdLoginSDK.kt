@@ -1,8 +1,10 @@
 package com.navercorp.nid
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.*
 
@@ -32,11 +34,6 @@ object NaverIdLoginSDK {
      * Custom Tabs를 활용한 OAuth에서 재인증 수행 여부를 결정한다.
      */
     var isRequiredCustomTabsReAuth: Boolean = false
-
-    /**
-     * 로그인 후 실행될 callback
-     */
-    lateinit var oauthLoginCallback: OAuthLoginCallback
 
     /**
      * Application Context
@@ -90,28 +87,46 @@ object NaverIdLoginSDK {
      *
      * RefreshToken이 존재하는 경우, 이미 연동이 된 것이므로 AccessToken을 갱신해준다.
      *
-     * @param context authenticate 메서드를 호출한 Activity의 Context
+     * @param context authenticate 메서드를 호출한 Activity
+     * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
      * @param callback 결과값을 받을 콜백
      */
-    fun authenticate(context: Context, callback: OAuthLoginCallback) {
+    fun authenticate(context: Context, launcher :ActivityResultLauncher<Intent>, callback: OAuthLoginCallback) {
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return
         }
-
-        oauthLoginCallback = callback
 
         val refreshToken = getRefreshToken()
         if (refreshToken.isNullOrEmpty()) {
             val orientation = context.resources.configuration.orientation
             val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
                 putExtra("orientation", orientation)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(intent)
+            launcher.launch(intent)
         } else {
-            NidOAuthLogin().refreshToken(context, callback)
+            NidOAuthLogin().refreshToken(context, launcher, callback)
         }
+    }
+
+    /**
+     * 재동의를 요청한다.
+     *
+     * @param context authenticate 메서드를 호출한 Activity의 Context
+     * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
+     */
+    fun reagreeAuthenticate(context: Context, launcher :ActivityResultLauncher<Intent>) {
+        if (getState() == NidOAuthLoginState.NEED_INIT) {
+            Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val orientation = context.resources.configuration.orientation
+        val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+            putExtra("orientation", orientation)
+            putExtra("auth_type", "reprompt")
+        }
+        launcher.launch(intent)
     }
 
     /**

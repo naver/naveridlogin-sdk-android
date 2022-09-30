@@ -37,9 +37,15 @@ class NidOAuthQuery {
         private var locale = NidDeviceUtil.getLocale(context)
         private var network = NidNetworkUtil.getType(context)
         private var version = NidOAuthConstants.SDK_VERSION
+        private var authType: String? = null
 
         fun setMethod(method: Method): Builder {
             this.method = method
+            return this
+        }
+
+        fun setAuthType(authType: String?): Builder{
+            this.authType = authType
             return this
         }
 
@@ -67,6 +73,11 @@ class NidOAuthQuery {
             if (NaverIdLoginSDK.isRequiredCustomTabsReAuth) {
                 parameters["auth_type"] = "reauthenticate"
             }
+
+            if (authType == "reprompt") {
+                parameters["auth_type"] = "reprompt"
+            }
+
             return "$REQUEST_AUTHORIZE_URL${parametersToQuery(parameters)}"
         }
 
@@ -82,6 +93,10 @@ class NidOAuthQuery {
                 "state" to state
             )
             parameters["network"] = network
+
+            if (authType == "reprompt") {
+                parameters["auth_type"] = "reprompt"
+            }
 
             return "$REQUEST_AUTHORIZE_URL${parametersToQuery(parameters)}"
         }

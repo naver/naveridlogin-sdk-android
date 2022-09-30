@@ -3,8 +3,11 @@ package com.nhn.android.naverlogin;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.view.Surface;
+
+import androidx.activity.result.ActivityResultLauncher;
 
 import com.navercorp.nid.NaverIdLoginSDK;
 import com.navercorp.nid.oauth.OAuthLoginCallback;
@@ -101,8 +104,8 @@ public class OAuthLogin {
 	}
 
 	@Deprecated
-	public void startOauthLoginActivity(final Activity activity, final OAuthLoginCallback oauthLoginCallback) {
-		NaverIdLoginSDK.INSTANCE.authenticate(activity, oauthLoginCallback);
+	public void startOauthLoginActivity(final Activity activity, final ActivityResultLauncher<Intent> launcher, final OAuthLoginCallback oauthLoginCallback) {
+		NaverIdLoginSDK.INSTANCE.authenticate(activity, launcher, oauthLoginCallback);
 	}
 
 	@Deprecated

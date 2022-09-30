@@ -24,7 +24,7 @@ Naver Login for Android uses libraries below.
 
 - org.jetbrains.kotlin:kotlin-stdlib:1.6.10
 - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
-- androidx.appcompat:appcompat:1.0.0
+- androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
 - androidx.browser:browser:1.0.0
 - androidx.legacy:legacy-support-v4:1.0.0
@@ -47,7 +47,7 @@ Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아�
 - https://developers.naver.com/docs/login/overview
 
 **네이버 아이디로 로그인 SDK 적용가이드**
-- [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.0.1-%EC%9D%B4%EC%83%81-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.2.0-%EC%9D%B4%EC%83%81-%EA%B0%80%EC%9D%B4%EB%93%9C)
 - https://developers.naver.com/docs/login/android
 
 **네이버 아이디로 로그인 문의**
@@ -59,7 +59,7 @@ Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아�
 
 - org.jetbrains.kotlin:kotlin-stdlib:1.6.10
 - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
-- androidx.appcompat:appcompat:1.0.0
+- androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
 - androidx.browser:browser:1.0.0
 - androidx.legacy:legacy-support-v4:1.0.0

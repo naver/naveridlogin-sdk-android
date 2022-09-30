@@ -1,5 +1,6 @@
 package com.navercorp.nid.progress
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
@@ -68,6 +69,10 @@ class NidProgressDialog {
     }
 
     fun hideProgress() {
+        if ((context as? Activity)?.isFinishing == true) {
+            return
+        }
+
         if (dialog.isShowing) {
             animation?.pauseAnimation()
             dialog.dismiss()
