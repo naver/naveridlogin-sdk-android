@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.util.AndroidVer
 
@@ -15,10 +16,11 @@ private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPref
 
 object EncryptedPreferences {
 
-    private lateinit var context: Context
+    private var context: Context? = null
+    private fun getCtx() = context ?: NaverIdLoginSDK.applicationContext
 
     private val masterKey: MasterKey by lazy {
-        MasterKey.Builder(this.context)
+        MasterKey.Builder(getCtx())
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .setUserAuthenticationRequired(false)
             .build()
@@ -30,7 +32,7 @@ object EncryptedPreferences {
 
     private fun init(): SharedPreferences = EncryptedSharedPreferences
         .create(
-            this.context,
+            getCtx(),
             OAUTH_LOGIN_PREF_NAME_PER_APP,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
@@ -111,7 +113,7 @@ object EncryptedPreferences {
             return
         }
 
-        var oldPreference = context.getSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME, Context.MODE_PRIVATE)
+        var oldPreference = getCtx().getSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME, Context.MODE_PRIVATE)
 
         // 마이그레이션
         kotlin.runCatching {
@@ -126,7 +128,7 @@ object EncryptedPreferences {
                 }
 
                 oldPreference = EncryptedSharedPreferences.create(
-                    context,
+                    getCtx(),
                     OLD_OAUTH_LOGIN_PREF_NAME,
                     masterKey,
                     EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
@@ -140,7 +142,7 @@ object EncryptedPreferences {
             }
         }.also {
             if (Build.VERSION.SDK_INT >= AndroidVer.API_24_NOUGAT) {
-                context.deleteSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME)
+                getCtx().deleteSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME)
             } else {
                 oldPreference.edit {
                     clear()

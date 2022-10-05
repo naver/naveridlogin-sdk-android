@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.provider.Settings
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity
@@ -34,6 +35,7 @@ class NidOAuthIntent {
         const val OAUTH_REQUEST_URL = "OAuthUrl"
         const val OAUTH_REQUEST_AGREE_FROM_URL = "agreeFormUrl"
         const val OAUTH_REQUEST_AGREE_FROM_CONTENT = "OAuthUrl"
+        const val OAUTH_REQUEST_AUTH_TYPE = "auth_type"
 
         /* OAuth Result Intent Key */
         const val OAUTH_RESULT_STATE = "oauth_state"
@@ -47,6 +49,7 @@ class NidOAuthIntent {
     enum class Type {
         NAVER_APP,
         CUSTOM_TABS,
+        @Deprecated("WebView is deprecated")
         WEB_VIEW
     }
 
@@ -60,6 +63,8 @@ class NidOAuthIntent {
         private var callbackUrl: String? = NidOAuthPreferencesManager.callbackUrl
         private var clientName: String? = NidOAuthPreferencesManager.clientName
         private var initState: String? = NidOAuthPreferencesManager.initState
+
+        private var authType: String? = null
 
         constructor(context: Context) {
             this.context = context
@@ -87,6 +92,16 @@ class NidOAuthIntent {
                     putExtra(OAUTH_REQUEST_CLIENT_NAME, clientName)
                     putExtra(OAUTH_REQUEST_INIT_STATE, initState)
                     putExtra(OAUTH_REQUEST_SDK_VERSION, NidOAuthConstants.SDK_VERSION)
+
+                    authType?.let {
+                        val naverAppVersion = NidApplicationUtil.getNaverAppVersion(context)
+                        var needUpdate = naverAppVersion < 11_16_00_00L
+
+                        if (needUpdate) {
+                            return Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${NidOAuthConstants.PACKAGE_NAME_NAVERAPP}"))
+                        }
+                        putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
+                    }
 
                     setPackage(NidOAuthConstants.PACKAGE_NAME_NAVERAPP)
                     action = NidOAuthConstants.SCHEME_OAUTH_LOGIN
@@ -132,6 +147,10 @@ class NidOAuthIntent {
                 putExtra(OAUTH_REQUEST_INIT_STATE, initState)
                 putExtra(OAUTH_REQUEST_SDK_VERSION, NidOAuthConstants.SDK_VERSION)
 
+                authType?.let {
+                    putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
+                }
+
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             }
         }
@@ -139,17 +158,27 @@ class NidOAuthIntent {
         /**
          * WebView로 OAuth를 시도하는 경우의 intent
          */
+        @Deprecated("WebView is deprecated")
         private fun getWebViewIntent(): Intent {
             return Intent(context, NidOAuthWebViewActivity::class.java).apply {
                 putExtra(OAUTH_REQUEST_CLIENT_ID, clientId)
                 putExtra(OAUTH_REQUEST_CALLBACK_URL, callbackUrl)
                 putExtra(OAUTH_REQUEST_INIT_STATE, initState)
                 putExtra(OAUTH_REQUEST_SDK_VERSION, NidOAuthConstants.SDK_VERSION)
+
+                authType?.let {
+                    putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
+                }
             }
         }
 
         fun setType(type: Type): Builder {
             this.type = type
+            return this
+        }
+
+        fun setAuthType(authType: String?): Builder {
+            this.authType = authType
             return this
         }
 

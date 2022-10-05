@@ -22,5 +22,8 @@ data class NidProfile(
     @SerializedName("birthyear")
     val birthYear: String?,
     @SerializedName("mobile")
-    val mobile: String?
+    val mobile: String?,
+    @SerializedName("ci")
+    val ci: String?
+
 )

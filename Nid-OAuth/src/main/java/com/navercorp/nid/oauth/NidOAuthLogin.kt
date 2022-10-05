@@ -3,6 +3,7 @@ package com.navercorp.nid.oauth
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.exception.NoConnectivityException
 import com.navercorp.nid.log.NidLog
@@ -27,7 +28,7 @@ class NidOAuthLogin {
         const val TAG = "NidOAuthLogin"
     }
 
-    private suspend fun requestAccessToken(context: Context, callback: OAuthLoginCallback): NidOAuthResponse? {
+    private suspend fun requestAccessToken(context: Context): NidOAuthResponse? {
 
         val response: Response<NidOAuthResponse>
         try {
@@ -36,7 +37,7 @@ class NidOAuthLogin {
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
-            callback.onError(-1, t.toString())
+            if (context is Activity) context.setResult(Activity.RESULT_CANCELED)
             return null
         }
 
@@ -62,14 +63,14 @@ class NidOAuthLogin {
                     }
                 }
                 when (isSuccess) {
-                    true -> callback.onSuccess()
-                    false -> callback.onFailure(response.code(), response.message())
+                    true -> if (context is Activity) context.setResult(Activity.RESULT_OK)
+                    false -> if (context is Activity) context.setResult(Activity.RESULT_CANCELED)
                 }
             }
-            in 400 until 500 -> callback.onFailure(response.code(), response.message())
+            in 400 until 500 -> if (context is Activity) context.setResult(Activity.RESULT_CANCELED)
             else -> {
                 errorHandling(errorCode = response.code())
-                callback.onError(response.code(), response.message())
+                if (context is Activity) context.setResult(Activity.RESULT_CANCELED)
             }
         }
         return response.body()
@@ -194,7 +195,7 @@ class NidOAuthLogin {
         }
     }
 
-    fun refreshToken(context: Context, callback: OAuthLoginCallback) {
+    fun refreshToken(context: Context, launcher: ActivityResultLauncher<Intent>, callback: OAuthLoginCallback) {
         val progressDialog = NidProgressDialog(context)
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -220,9 +221,8 @@ class NidOAuthLogin {
                 val orientation = context.resources.configuration.orientation
                 val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
                     putExtra("orientation", orientation)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                context.startActivity(intent)
+                launcher.launch(intent)
             } else {
                 callback.onSuccess()
             }
@@ -235,7 +235,7 @@ class NidOAuthLogin {
         CoroutineScope(Dispatchers.Main).launch {
 
             progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
-            val res = requestAccessToken(context, NaverIdLoginSDK.oauthLoginCallback)
+            val res = requestAccessToken(context)
             progressDialog.hideProgress()
 
             res?.let {

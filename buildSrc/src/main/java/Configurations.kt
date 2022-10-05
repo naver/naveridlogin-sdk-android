@@ -9,8 +9,8 @@ object Configurations {
     const val minSdkVersion = 21
 
     /* Version */
-    const val moduleVersionName = "5.1.1"
-    const val moduleVersionCode = 5_01_01
+    const val moduleVersionName = "5.2.0"
+    const val moduleVersionCode = 5_02_00
 
     /* Project ClassPath */
     object Plugins {

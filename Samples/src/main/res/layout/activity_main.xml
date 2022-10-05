@@ -191,6 +191,15 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/reagreeLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="2dp"
+            android:layout_gravity="center"
+            android:text="재동의 로그인"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

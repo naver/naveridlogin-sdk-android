@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.browser.customtabs.CustomTabsService
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthConstants
@@ -104,5 +105,23 @@ object NidApplicationUtil {
     }
 
     fun isNotCustomTabsAvailable(context: Context): Boolean = !isCustomTabsAvailable(context)
+
+    fun getNaverAppVersion(context: Context): Long = getApplicationVersion(context, NidOAuthConstants.PACKAGE_NAME_NAVERAPP)
+
+    private fun getApplicationVersion(context: Context, packageName: String): Long {
+        val packageManager = context.packageManager
+
+        return try {
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            if (Build.VERSION.SDK_INT >= AndroidVer.API_28_PIE) {
+                packageInfo.longVersionCode
+            } else {
+                packageInfo.versionCode.toLong()
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            NidLog.d(TAG, e)
+            -1
+        }
+    }
 
 }

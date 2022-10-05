@@ -34,7 +34,8 @@ enum class NidOAuthErrorCode(
     CLIENT_ERROR_CONNECTION_ERROR ("server_error", "connection_error"),
     CLIENT_ERROR_CERTIFICATION_ERROR ("server_error", "certification_error"),
     CLIENT_USER_CANCEL ("user_cancel", "user_cancel"),
-    ACTIVITY_IS_SINGLE_TASK("activity_is_single_task", "activity_is_single_task");
+    ACTIVITY_IS_SINGLE_TASK("activity_is_single_task", "activity_is_single_task"),
+    WEB_VIEW_IS_DEPRECATED("web_view_is_deprecated", "web_view_is_deprecated");
 
     companion object INSTANCE {
         fun fromString(code: String?): NidOAuthErrorCode {

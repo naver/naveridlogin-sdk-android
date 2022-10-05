@@ -1,16 +1,25 @@
 package com.navercorp.nid.oauth.sample
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.navercorp.nid.oauth.NidOAuthBehavior
+import com.navercorp.nid.oauth.NidOAuthBridgeActivity
 import com.navercorp.nid.oauth.NidOAuthLogin
 import com.navercorp.nid.oauth.sample.databinding.ActivityMainBinding
 import com.navercorp.nid.profile.NidProfileCallback
@@ -26,6 +35,20 @@ class MainActivity : AppCompatActivity() {
     private var clientSecret = "527300A0_COq1_XV33cf"
     private var clientName = "네이버 아이디로 로그인"
 
+    private val launcher = registerForActivityResult<Intent, ActivityResult>(ActivityResultContracts.StartActivityForResult()) { result ->
+        when(result.resultCode) {
+            RESULT_OK -> {
+                // 성공
+                updateView()
+            }
+            RESULT_CANCELED -> {
+                // 실패 or 에러
+                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                Toast.makeText(context, "errorCode:$errorCode, errorDesc:$errorDescription", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             isShowBottomTab = true
         }
 
-        binding.buttonOAuthLoginImg.setOAuthLoginCallback(object : OAuthLoginCallback {
+        binding.buttonOAuthLoginImg.setOAuthLogin(launcher, object : OAuthLoginCallback {
             override fun onSuccess() {
                 updateView()
             }
@@ -70,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         // 로그인
         binding.login.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(context, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -179,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         // 네이버앱 로그인
         binding.loginWithNaverapp.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.NAVERAPP
-            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -205,7 +228,7 @@ class MainActivity : AppCompatActivity() {
         binding.loginWithCustomtabs.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.CUSTOMTABS
 //            OAuthLogin.getInstance().setCustomTabReAuth(false) // 무조건 재인증시 true
-            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -230,7 +253,7 @@ class MainActivity : AppCompatActivity() {
         // 웹뷰 로그인
         binding.loginWithWebView.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.WEBVIEW
-            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -250,6 +273,12 @@ class MainActivity : AppCompatActivity() {
                 }
 
             })
+        }
+
+        // 재동의 로그인
+        binding.reagreeLogin.setOnClickListener {
+            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
+            NaverIdLoginSDK.reagreeAuthenticate(context, launcher)
         }
 
         // ClientSpinner

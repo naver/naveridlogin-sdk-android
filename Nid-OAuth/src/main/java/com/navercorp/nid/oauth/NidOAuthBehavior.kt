@@ -13,11 +13,13 @@ package com.navercorp.nid.oauth
 enum class NidOAuthBehavior(
     val allowsNaverApp: Boolean,
     val allowsCustomTabs: Boolean,
+    @Deprecated("WebView is deprecated")
     val allowsWebView: Boolean
 )
 {
     DEFAULT     (allowsNaverApp = true,  allowsCustomTabs = true,  allowsWebView = true),
     NAVERAPP    (allowsNaverApp = true,  allowsCustomTabs = false, allowsWebView = false),
     CUSTOMTABS  (allowsNaverApp = false, allowsCustomTabs = true,  allowsWebView = false),
+    @Deprecated("WebView is deprecated")
     WEBVIEW     (allowsNaverApp = false, allowsCustomTabs = false, allowsWebView = true)
 }

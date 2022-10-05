@@ -7,7 +7,7 @@ object Dependencies {
 
     const val androidxVersion = "1.0.0"
     object AndroidX {
-        const val appcompat = "androidx.appcompat:appcompat:$androidxVersion"
+        const val appcompat = "androidx.appcompat:appcompat:1.3.1"
         const val coreUtils = "androidx.legacy:legacy-support-core-utils:$androidxVersion"
         const val browser = "androidx.browser:browser:$androidxVersion"
         const val supportV4 = "androidx.legacy:legacy-support-v4:$androidxVersion"

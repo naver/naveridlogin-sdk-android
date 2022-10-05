@@ -1,9 +1,12 @@
 package com.navercorp.nid.oauth
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.NaverIdLoginSDK.behavior
@@ -40,6 +43,8 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     private var isLoginActivityStarted = false
 
+    private var authType: String? = null
+
     private fun initData(): Boolean {
 
         if (NidOAuthPreferencesManager.clientId.isNullOrEmpty()) {
@@ -64,6 +69,8 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         val screenOrientation = intent.getIntExtra("orientation", 1)
         requestedOrientation = screenOrientation
 
+        authType = intent.getStringExtra("auth_type")
+
 		return true
 
     }
@@ -71,6 +78,8 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NidLog.d(TAG, "called onCreate()")
+
+        NaverIdLoginSDK.applicationContext = this.applicationContext
 
         if (!initData()) {
             return
@@ -112,7 +121,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             NidOAuthPreferencesManager.lastErrorDesc = "OAuthLoginActivity is destroyed."
 
-            NaverIdLoginSDK.oauthLoginCallback.onError(-1, "OAuthLoginActivity is destroyed.")
+            setResult(RESULT_CANCELED)
         }
     }
 
@@ -161,11 +170,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             }
             NidOAuthBehavior.CUSTOMTABS -> {
                 if (!tryOAuthByCustomTab()) {
-                    if (NidApplicationUtil.isNotCustomTabsAvailable(this)) {
-                        // 커스텀탭을 실행할 수 있는 앱이 없는 경우 웹뷰가 열립니다.
-                        startLoginWebviewActivity()
-                        return
-                    }
                     oauthFinish(Intent(), NidOAuthErrorCode.ERROR_NO_CATAGORIZED, "커스텀탭을 실행할 수 없습니다.")
                 }
                 return
@@ -177,13 +181,14 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             // 기본값의 경우 OAuth 인증 시도의 우선순위는 아래와 같다.
             // 1. 네이버앱
             // 2. 크롬 커스텀탭
-            // 3. 인앱브라우저
             NidOAuthBehavior.DEFAULT -> {
                 if (tryOAuthByNaverapp()) return
                 if (tryOAuthByCustomTab()) return
+                isForceDestroyed = false
+                oauthFinish(Intent(), NidOAuthErrorCode.ERROR_NO_CATAGORIZED, "인증을 진행할 수 있는 앱이 없습니다.")
             }
         }
-        startLoginWebviewActivity()
+//        startLoginWebviewActivity()
     }
 
     /**
@@ -194,9 +199,20 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     private fun tryOAuthByNaverapp(): Boolean {
         val intent = NidOAuthIntent.Builder(this)
             .setType(NidOAuthIntent.Type.NAVER_APP)
+            .setAuthType(authType)
             .build()
         return if (intent == null) {
             false
+        } else if (intent.data != null) {
+            try {
+                startActivity(intent)
+                isForceDestroyed = false
+                setResult(Activity.RESULT_CANCELED)
+                finish()
+                true
+            } catch (e: ActivityNotFoundException) {
+                false
+            }
         } else {
             startActivityForResult(intent, REQUEST_CODE_LOGIN)
             true
@@ -211,6 +227,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     private fun tryOAuthByCustomTab(): Boolean {
         val intent = NidOAuthIntent.Builder(this)
             .setType(NidOAuthIntent.Type.CUSTOM_TABS)
+            .setAuthType(authType)
             .build()
         return if (intent == null) {
             false
@@ -224,11 +241,15 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
      * login webview 를 실행함
      * 네이버 앱도 없고 커스텀 탭도 불가능한 상황일 때 혹은 필요에 의해 웹뷰만 호출
      */
+    @Deprecated("WebView is deprecated")
     private fun startLoginWebviewActivity() {
-        val intent = NidOAuthIntent.Builder(this)
-            .setType(NidOAuthIntent.Type.WEB_VIEW)
-            .build()
-        startActivityForResult(intent, REQUEST_CODE_LOGIN)
+        Toast.makeText(this, "더이상 인앱브라우저(웹뷰)는 사용할 수 없습니다.(WebView is deprecated)", Toast.LENGTH_SHORT).show()
+        isForceDestroyed = false
+        oauthFinish(Intent(), NidOAuthErrorCode.WEB_VIEW_IS_DEPRECATED, "webView is deprecated")
+//        val intent = NidOAuthIntent.Builder(this)
+//            .setType(NidOAuthIntent.Type.WEB_VIEW)
+//            .build()
+//        startActivityForResult(intent, REQUEST_CODE_LOGIN)
     }
 
     override fun onResume() {
@@ -262,8 +283,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         NidOAuthPreferencesManager.lastErrorDesc = errorDescription
         setResult(RESULT_CANCELED, intent)
         finish()
-
-        NaverIdLoginSDK.oauthLoginCallback.onError(-1, errorDescription)
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
