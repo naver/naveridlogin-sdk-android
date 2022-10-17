@@ -33,6 +33,7 @@ class NidProgressDialog {
         init(null)
     }
 
+    private val isSafeForManipulateDialogVisibility get() = (context as? Activity)?.isFinishing != true
 
     private fun init(cancelListener: DialogInterface.OnCancelListener?) {
         dialog.setCancelable(true)
@@ -65,15 +66,14 @@ class NidProgressDialog {
         }
 
         animation?.playAnimation()
-        dialog.show()
+
+        if (isSafeForManipulateDialogVisibility) {
+            dialog.show()
+        }
     }
 
     fun hideProgress() {
-        if ((context as? Activity)?.isFinishing == true) {
-            return
-        }
-
-        if (dialog.isShowing) {
+        if (dialog.isShowing && isSafeForManipulateDialogVisibility) {
             animation?.pauseAnimation()
             dialog.dismiss()
         }
