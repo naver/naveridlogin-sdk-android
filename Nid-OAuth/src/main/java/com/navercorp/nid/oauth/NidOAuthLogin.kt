@@ -196,9 +196,8 @@ class NidOAuthLogin {
     }
 
     fun refreshToken(context: Context, launcher: ActivityResultLauncher<Intent>, callback: OAuthLoginCallback) {
-        val progressDialog = NidProgressDialog(context)
-
         CoroutineScope(Dispatchers.Main).launch {
+            val progressDialog = NidProgressDialog(context)
 
             progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
             val at = requestRefreshAccessToken(context, object: OAuthLoginCallback {
@@ -230,9 +229,8 @@ class NidOAuthLogin {
     }
 
     fun accessToken(context: Context) {
-        val progressDialog = NidProgressDialog(context)
-
         CoroutineScope(Dispatchers.Main).launch {
+            val progressDialog = NidProgressDialog(context)
 
             progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
             val res = requestAccessToken(context)
