@@ -12,7 +12,7 @@ import com.navercorp.nid.util.AndroidVer
 
 private const val TAG = "EncryptedPreferences"
 
-private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPreferenceData";
+private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPreferenceData"
 
 object EncryptedPreferences {
 
@@ -43,7 +43,12 @@ object EncryptedPreferences {
     fun setContext(context: Context) {
         this.context = context
 
-        migration()
+        kotlin.runCatching {
+            migration()
+        }.onFailure {
+            deleteCurrentEncryptedPreference()
+            migration()
+        }
     }
 
     /**
@@ -151,6 +156,18 @@ object EncryptedPreferences {
         }
     }
 
+    private fun deleteCurrentEncryptedPreference(){
+        val preferences = getCtx().getSharedPreferences(OAUTH_LOGIN_PREF_NAME_PER_APP, Context.MODE_PRIVATE)
+
+        if (Build.VERSION.SDK_INT >= AndroidVer.API_24_NOUGAT) {
+            getCtx().deleteSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME)
+        } else {
+            preferences.edit {
+                clear()
+            }
+        }
+    }
+
     @Throws(SecurityException::class)
     private fun moveToData(preferences: SharedPreferences) {
         for (entry in preferences.all.entries) {
@@ -172,5 +189,5 @@ object EncryptedPreferences {
             }
         }
     }
-    
+
 }
