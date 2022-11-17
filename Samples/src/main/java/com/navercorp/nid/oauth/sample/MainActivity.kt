@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
             isShowBottomTab = true
         }
 
-        binding.buttonOAuthLoginImg.setOAuthLogin(launcher, object : OAuthLoginCallback {
+        binding.buttonOAuthLoginImg.setOAuthLogin(object : OAuthLoginCallback {
             override fun onSuccess() {
                 updateView()
             }
@@ -90,10 +90,34 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        // 로그인
-        binding.login.setOnClickListener {
+        // 로그인 Launcher
+        binding.loginLauncher.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
             NaverIdLoginSDK.authenticate(context, launcher, object : OAuthLoginCallback {
+                override fun onSuccess() {
+                    updateView()
+                }
+
+                override fun onFailure(httpStatus: Int, message: String) {
+                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                    Toast.makeText(
+                        context,
+                        "errorCode:$errorCode, errorDesc:$errorDescription",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onError(errorCode: Int, message: String) {
+                    onFailure(errorCode, message)
+                }
+            })
+        }
+
+        // 로그인 Callback
+        binding.loginCallback.setOnClickListener {
+            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
+            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -199,10 +223,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        // 네이버앱 로그인
+        // 네이버앱 로그인 (Callback)
         binding.loginWithNaverapp.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.NAVERAPP
-            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -224,11 +248,11 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        // 커스텀탭 로그인
+        // 커스텀탭 로그인 Callback
         binding.loginWithCustomtabs.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.CUSTOMTABS
 //            OAuthLogin.getInstance().setCustomTabReAuth(false) // 무조건 재인증시 true
-            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -253,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         // 웹뷰 로그인
         binding.loginWithWebView.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.WEBVIEW
-            NaverIdLoginSDK.authenticate(this, launcher, object : OAuthLoginCallback {
+            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -275,10 +299,35 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        // 재동의 로그인
-        binding.reagreeLogin.setOnClickListener {
+        // 재동의 로그인 Launcher
+        binding.reagreeLoginLauncher.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
             NaverIdLoginSDK.reagreeAuthenticate(context, launcher)
+        }
+
+        // 재동의 로그인 Callback
+        binding.reagreeLoginCallback.setOnClickListener {
+            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
+            NaverIdLoginSDK.reagreeAuthenticate(context, object : OAuthLoginCallback {
+                override fun onSuccess() {
+                    updateView()
+                }
+
+                override fun onFailure(httpStatus: Int, message: String) {
+                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                    Toast.makeText(
+                        context,
+                        "errorCode:$errorCode, errorDesc:$errorDescription",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onError(errorCode: Int, message: String) {
+                    onFailure(errorCode, message)
+                }
+
+            })
         }
 
         // ClientSpinner

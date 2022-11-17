@@ -121,6 +121,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             NidOAuthPreferencesManager.lastErrorDesc = "OAuthLoginActivity is destroyed."
 
+            NaverIdLoginSDK.oauthLoginCallback?.onError(-1, "OAuthLoginActivity is destroyed.")
             setResult(RESULT_CANCELED)
         }
     }
@@ -170,6 +171,9 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             }
             NidOAuthBehavior.CUSTOMTABS -> {
                 if (!tryOAuthByCustomTab()) {
+                    if (NidApplicationUtil.isNotCustomTabsAvailable(this) && NidApplicationUtil.isExistNaverApp(this) && tryOAuthByNaverapp()) {
+                        return
+                    }
                     oauthFinish(Intent(), NidOAuthErrorCode.ERROR_NO_CATAGORIZED, "커스텀탭을 실행할 수 없습니다.")
                 }
                 return
@@ -207,6 +211,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             try {
                 startActivity(intent)
                 isForceDestroyed = false
+                NaverIdLoginSDK.oauthLoginCallback?.onError(-1, "네이버앱 업데이트가 필요합니다.")
                 setResult(Activity.RESULT_CANCELED)
                 finish()
                 true
@@ -281,6 +286,8 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     private fun oauthFinish(intent: Intent, errorCode: NidOAuthErrorCode, errorDescription: String) {
         NidOAuthPreferencesManager.lastErrorCode = errorCode
         NidOAuthPreferencesManager.lastErrorDesc = errorDescription
+
+        NaverIdLoginSDK.oauthLoginCallback?.onError(-1, errorDescription)
         setResult(RESULT_CANCELED, intent)
         finish()
     }
@@ -316,7 +323,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         if (code.isNullOrEmpty()) {
             finishWithErrorResult(data)
         } else {
-            NidOAuthLogin().accessToken(this)
+            NidOAuthLogin().accessToken(this, NaverIdLoginSDK.oauthLoginCallback)
         }
     }
 }

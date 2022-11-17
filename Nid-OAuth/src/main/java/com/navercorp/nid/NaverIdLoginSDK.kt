@@ -36,6 +36,11 @@ object NaverIdLoginSDK {
     var isRequiredCustomTabsReAuth: Boolean = false
 
     /**
+     * 로그인 후 실행될 callback
+     */
+    var oauthLoginCallback: OAuthLoginCallback? = null
+
+    /**
      * Application Context
      */
     lateinit var applicationContext: Context
@@ -97,6 +102,8 @@ object NaverIdLoginSDK {
             return
         }
 
+        oauthLoginCallback = null
+
         val refreshToken = getRefreshToken()
         if (refreshToken.isNullOrEmpty()) {
             val orientation = context.resources.configuration.orientation
@@ -106,6 +113,34 @@ object NaverIdLoginSDK {
             launcher.launch(intent)
         } else {
             NidOAuthLogin().refreshToken(context, launcher, callback)
+        }
+    }
+
+    /**
+     * OAuth 2.0 로그인을 수행한다.
+     *
+     * RefreshToken이 존재하는 경우, 이미 연동이 된 것이므로 AccessToken을 갱신해준다.
+     *
+     * @param context authenticate 메서드를 호출한 Activity
+     * @param callback 결과값을 받을 콜백
+     */
+    fun authenticate(context: Context, callback: OAuthLoginCallback) {
+        if (getState() == NidOAuthLoginState.NEED_INIT) {
+            Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        oauthLoginCallback = callback
+
+        val refreshToken = getRefreshToken()
+        if (refreshToken.isNullOrEmpty()) {
+            val orientation = context.resources.configuration.orientation
+            val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+                putExtra("orientation", orientation)
+            }
+            context.startActivity(intent)
+        } else {
+            NidOAuthLogin().refreshToken(context, null, callback)
         }
     }
 
@@ -121,12 +156,36 @@ object NaverIdLoginSDK {
             return
         }
 
+        oauthLoginCallback = null
+
         val orientation = context.resources.configuration.orientation
         val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
             putExtra("orientation", orientation)
             putExtra("auth_type", "reprompt")
         }
         launcher.launch(intent)
+    }
+
+    /**
+     * 재동의를 요청한다.
+     *
+     * @param context authenticate 메서드를 호출한 Activity의 Context
+     * @param callback 결과값을 받을 콜백
+     */
+    fun reagreeAuthenticate(context: Context, callback: OAuthLoginCallback) {
+        if (getState() == NidOAuthLoginState.NEED_INIT) {
+            Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        oauthLoginCallback = callback
+
+        val orientation = context.resources.configuration.orientation
+        val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+            putExtra("orientation", orientation)
+            putExtra("auth_type", "reprompt")
+        }
+        context.startActivity(intent)
     }
 
     /**

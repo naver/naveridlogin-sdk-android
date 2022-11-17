@@ -13,7 +13,7 @@ class NidOAuthLoginButton: AppCompatImageView {
 
     companion object {
         const val TAG = "NidOAuthLoginButton"
-        lateinit var launcher: ActivityResultLauncher<Intent>
+        var launcher: ActivityResultLauncher<Intent>? = null
         lateinit var oauthLoginCallback: OAuthLoginCallback
     }
 
@@ -32,8 +32,14 @@ class NidOAuthLoginButton: AppCompatImageView {
     fun init() {
         setImageDrawable(context.getDrawable(R.drawable.login_btn_img))
         setOnClickListener {
-            NaverIdLoginSDK.authenticate(context, launcher, oauthLoginCallback)
+            launcher?.let { launcher ->
+                NaverIdLoginSDK.authenticate(context, launcher, oauthLoginCallback)
+            } ?: NaverIdLoginSDK.authenticate(context, oauthLoginCallback)
         }
+    }
+
+    fun setOAuthLogin(oauthLoginCallback: OAuthLoginCallback) {
+        Companion.oauthLoginCallback = oauthLoginCallback
     }
 
     fun setOAuthLogin(launcher: ActivityResultLauncher<Intent>, oauthLoginCallback: OAuthLoginCallback) {

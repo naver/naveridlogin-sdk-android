@@ -77,6 +77,55 @@ class NidOAuthLogin {
 
     }
 
+    private suspend fun requestAccessToken(context: Context, callback: OAuthLoginCallback): NidOAuthResponse? {
+
+        val response: Response<NidOAuthResponse>
+        try {
+            response = withContext(Dispatchers.IO) {
+                NidOAuthApi().requestAccessToken(context)
+            }
+        } catch (t: Throwable) {
+            errorHandling(throwable = t)
+            callback.onError(-1, t.toString())
+            return null
+        }
+
+        when (response.code()) {
+            in 200 until 300 -> {
+                val res = response.body()
+                var isSuccess = false
+                if (res != null) {
+                    if (res.error.isNullOrEmpty() && !res.accessToken.isNullOrEmpty()) {
+                        NidOAuthPreferencesManager.apply {
+                            accessToken = res.accessToken
+                            refreshToken = res.refreshToken
+                            expiresAt = System.currentTimeMillis() / 1000 + res.expiresIn
+                            tokenType = res.tokenType
+                            lastErrorCode = NidOAuthErrorCode.NONE
+                            lastErrorDesc = NidOAuthErrorCode.NONE.description
+                        }
+                        isSuccess = true
+
+                    } else {
+                        NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.fromString(res.error)
+                        NidOAuthPreferencesManager.lastErrorDesc = res.errorDescription ?: ""
+                    }
+                }
+                when (isSuccess) {
+                    true -> callback.onSuccess()
+                    false -> callback.onFailure(response.code(), response.message())
+                }
+            }
+            in 400 until 500 -> callback.onFailure(response.code(), response.message())
+            else -> {
+                errorHandling(errorCode = response.code())
+                callback.onError(response.code(), response.message())
+            }
+        }
+        return response.body()
+
+    }
+
     private suspend fun requestRefreshAccessToken(context: Context, callback: OAuthLoginCallback): String? {
 
         val response: Response<NidOAuthResponse>
@@ -195,7 +244,7 @@ class NidOAuthLogin {
         }
     }
 
-    fun refreshToken(context: Context, launcher: ActivityResultLauncher<Intent>, callback: OAuthLoginCallback) {
+    fun refreshToken(context: Context, launcher: ActivityResultLauncher<Intent>?, callback: OAuthLoginCallback) {
         val progressDialog = NidProgressDialog(context)
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -222,20 +271,25 @@ class NidOAuthLogin {
                 val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
                     putExtra("orientation", orientation)
                 }
-                launcher.launch(intent)
+
+                launcher?.launch(intent) ?: context.startActivity(intent)
             } else {
                 callback.onSuccess()
             }
         }
     }
 
-    fun accessToken(context: Context) {
+    fun accessToken(context: Context, callback: OAuthLoginCallback?) {
         val progressDialog = NidProgressDialog(context)
 
         CoroutineScope(Dispatchers.Main).launch {
 
             progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
-            val res = requestAccessToken(context)
+            val res = if (callback == null) {
+                requestAccessToken(context)
+            } else {
+                requestAccessToken(context, callback)
+            }
             progressDialog.hideProgress()
 
             res?.let {
