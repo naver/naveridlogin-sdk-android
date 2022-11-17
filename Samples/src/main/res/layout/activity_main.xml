@@ -93,6 +93,7 @@
                 android:id="@+id/buttonOAuthLoginImg"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -102,13 +103,30 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/login"
+                android:id="@+id/loginLauncher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
-                android:text="로그인"/>
+                android:text="로그인(Launcher)"/>
+
+            <Button
+                android:id="@+id/loginCallback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="로그인(Callback)"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/logout"
@@ -127,14 +145,6 @@
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
                 android:text="연동 끊기"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/refreshToken"
@@ -191,14 +201,35 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/reagreeLogin"
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="2dp"
-            android:layout_gravity="center"
-            android:text="재동의 로그인"/>
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/reagreeLoginLauncher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="재동의 로그인(Launcher)"/>
+
+            <Button
+                android:id="@+id/reagreeLoginCallback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="재동의 로그인(Callback)"/>
+
+        </LinearLayout>
+
+
 
         <LinearLayout
             android:layout_width="match_parent"
