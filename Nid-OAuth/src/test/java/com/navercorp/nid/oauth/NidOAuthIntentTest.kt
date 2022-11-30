@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import com.navercorp.naverid.NaverIdTestCase
 import com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity
-import com.navercorp.nid.oauth.activity.NidOAuthWebViewActivity
 import com.navercorp.nid.oauth.legacy.OAuthLoginActivity
 import org.junit.Assert
 import org.junit.Before

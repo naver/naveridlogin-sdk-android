@@ -9,7 +9,6 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity
-import com.navercorp.nid.oauth.activity.NidOAuthWebViewActivity
 import com.navercorp.nid.util.NidApplicationUtil
 
 /**
@@ -48,9 +47,9 @@ class NidOAuthIntent {
 
     enum class Type {
         NAVER_APP,
-        CUSTOM_TABS,
-        @Deprecated("WebView is deprecated")
-        WEB_VIEW
+        CUSTOM_TABS
+//        @Deprecated("WebView is deprecated")
+//        WEB_VIEW
     }
 
     class Builder {
@@ -74,7 +73,7 @@ class NidOAuthIntent {
             return when (type) {
                 Type.NAVER_APP -> { getNaverAppIntent() }
                 Type.CUSTOM_TABS -> { getCustomTabsIntent() }
-                Type.WEB_VIEW -> { getWebViewIntent() }
+//                Type.WEB_VIEW -> { getWebViewIntent() }
                 else -> { null }
             }
         }
@@ -158,19 +157,19 @@ class NidOAuthIntent {
         /**
          * WebView로 OAuth를 시도하는 경우의 intent
          */
-        @Deprecated("WebView is deprecated")
-        private fun getWebViewIntent(): Intent {
-            return Intent(context, NidOAuthWebViewActivity::class.java).apply {
-                putExtra(OAUTH_REQUEST_CLIENT_ID, clientId)
-                putExtra(OAUTH_REQUEST_CALLBACK_URL, callbackUrl)
-                putExtra(OAUTH_REQUEST_INIT_STATE, initState)
-                putExtra(OAUTH_REQUEST_SDK_VERSION, NidOAuthConstants.SDK_VERSION)
-
-                authType?.let {
-                    putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
-                }
-            }
-        }
+//        @Deprecated("WebView is deprecated")
+//        private fun getWebViewIntent(): Intent {
+//            return Intent(context, NidOAuthWebViewActivity::class.java).apply {
+//                putExtra(OAUTH_REQUEST_CLIENT_ID, clientId)
+//                putExtra(OAUTH_REQUEST_CALLBACK_URL, callbackUrl)
+//                putExtra(OAUTH_REQUEST_INIT_STATE, initState)
+//                putExtra(OAUTH_REQUEST_SDK_VERSION, NidOAuthConstants.SDK_VERSION)
+//
+//                authType?.let {
+//                    putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
+//                }
+//            }
+//        }
 
         fun setType(type: Type): Builder {
             this.type = type

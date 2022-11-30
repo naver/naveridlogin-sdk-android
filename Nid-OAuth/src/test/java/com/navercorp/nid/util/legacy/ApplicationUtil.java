@@ -9,7 +9,6 @@ import android.text.TextUtils;
 
 import com.navercorp.nid.log.NidLog;
 import com.navercorp.nid.oauth.NidOAuthConstants;
-import com.nhn.android.naverlogin.OAuthLogin;
 
 import java.util.List;
 

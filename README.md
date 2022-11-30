@@ -12,7 +12,7 @@ The NAVER Login library for Android enables you to easily add the login, logout,
 features to your application.
 
 **How to use NaverIdLogin SDK for Android? <small>(korean)</small>**
-- [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.2.1-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.3.0-%EA%B0%80%EC%9D%B4%EB%93%9C)
 - https://developers.naver.com/docs/login/android
 
 **Need help?**
@@ -47,7 +47,7 @@ Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아�
 - https://developers.naver.com/docs/login/overview
 
 **네이버 아이디로 로그인 SDK 적용가이드**
-- [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.2.1-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.3.0-%EA%B0%80%EC%9D%B4%EB%93%9C)
 - https://developers.naver.com/docs/login/android
 
 **네이버 아이디로 로그인 문의**

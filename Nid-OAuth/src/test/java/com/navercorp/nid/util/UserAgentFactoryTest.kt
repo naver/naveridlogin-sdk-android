@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import com.navercorp.naverid.NaverIdTestCase
 import com.navercorp.nid.util.legacy.ApplicationUtil
-import com.nhn.android.naverlogin.OAuthLogin
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

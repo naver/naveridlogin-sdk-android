@@ -93,25 +93,7 @@ class MainActivity : AppCompatActivity() {
         // 로그인 Launcher
         binding.loginLauncher.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.authenticate(context, launcher, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-            })
+            NaverIdLoginSDK.authenticate(context, launcher)
         }
 
         // 로그인 Callback
