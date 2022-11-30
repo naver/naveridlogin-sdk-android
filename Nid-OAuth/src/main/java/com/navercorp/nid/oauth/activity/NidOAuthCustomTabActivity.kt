@@ -6,15 +6,18 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthErrorCode
 import com.navercorp.nid.oauth.NidOAuthIntent
 import com.navercorp.nid.oauth.NidOAuthQuery
-import com.navercorp.nid.oauth.plugin.NidOAuthWebViewPlugin.getDecodedString
 import kotlinx.coroutines.*
+import java.net.URLDecoder
 
 class NidOAuthCustomTabActivity : AppCompatActivity() {
 
     companion object {
+        const val TAG = "NidOAuthCustomTabActivity"
+
         const val SAVE_CUSTOM_TAB_OPEN = "isCustomTabOpen"
         const val ACTION_NAVER_CUSTOM_TAB = "ACTION_NAVER_3RDPARTY_CUSTOM_TAB"
     }
@@ -121,6 +124,19 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         instance.sendBroadcast(data)
         setResult(RESULT_CANCELED)
         finish()
+    }
+
+    private fun getDecodedString(str: String?): String? {
+        NidLog.d(TAG, "called getDecodedString()")
+        NidLog.d(TAG, "getDecodedString() | str : $str")
+        if (str.isNullOrEmpty()) {
+            return str
+        }
+        val decoded = URLDecoder.decode(str, "UTF-8")
+        if (!decoded.isNullOrEmpty() && !decoded.equals(str, ignoreCase = true)) {
+            return decoded
+        }
+        return str
     }
 
 }

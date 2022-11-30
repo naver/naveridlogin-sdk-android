@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.MainThread
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.exception.NoConnectivityException
 import com.navercorp.nid.log.NidLog
@@ -13,7 +14,6 @@ import com.navercorp.nid.profile.NidProfileCallback
 import com.navercorp.nid.profile.api.NidProfileApi
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.navercorp.nid.progress.NidProgressDialog
-import com.nhn.android.naverlogin.OAuthLogin
 import com.nhn.android.oauth.R
 import kotlinx.coroutines.*
 import retrofit2.Response
@@ -244,39 +244,27 @@ class NidOAuthLogin {
         }
     }
 
-    fun refreshToken(context: Context, launcher: ActivityResultLauncher<Intent>?, callback: OAuthLoginCallback) {
+    suspend fun refreshToken(context: Context) = withContext(Dispatchers.Main) {
         val progressDialog = NidProgressDialog(context)
 
-        CoroutineScope(Dispatchers.Main).launch {
-
-            progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
-            val at = requestRefreshAccessToken(context, object: OAuthLoginCallback {
-                override fun onSuccess() {
-                    NidLog.d(TAG, "requestRefreshAccessToken | onSuccess()")
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    NidLog.d(TAG, "requestRefreshAccessToken | onFailure()")
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    NidLog.d(TAG, "requestRefreshAccessToken | onError()")
-                }
-
-            })
-            progressDialog.hideProgress()
-
-            if (at.isNullOrEmpty()) {
-                val orientation = context.resources.configuration.orientation
-                val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
-                    putExtra("orientation", orientation)
-                }
-
-                launcher?.launch(intent) ?: context.startActivity(intent)
-            } else {
-                callback.onSuccess()
+        progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
+        val accessToken = requestRefreshAccessToken(context, object: OAuthLoginCallback {
+            override fun onSuccess() {
+                NidLog.d(TAG, "requestRefreshAccessToken | onSuccess()")
             }
-        }
+
+            override fun onFailure(httpStatus: Int, message: String) {
+                NidLog.d(TAG, "requestRefreshAccessToken | onFailure()")
+            }
+
+            override fun onError(errorCode: Int, message: String) {
+                NidLog.d(TAG, "requestRefreshAccessToken | onError()")
+            }
+
+        })
+        progressDialog.hideProgress()
+
+        return@withContext accessToken.isNullOrEmpty().not()
     }
 
     fun accessToken(context: Context, callback: OAuthLoginCallback?) {

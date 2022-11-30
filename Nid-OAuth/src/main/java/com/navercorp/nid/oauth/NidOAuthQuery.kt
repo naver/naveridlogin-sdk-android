@@ -20,8 +20,8 @@ import java.net.URLEncoder
 class NidOAuthQuery {
 
     enum class Method {
-        CUSTOM_TABS,
-        WEB_VIEW
+        CUSTOM_TABS
+//        WEB_VIEW
     }
 
     companion object {
@@ -52,8 +52,8 @@ class NidOAuthQuery {
         private fun generateQuery(): String {
             return when (method) {
                 Method.CUSTOM_TABS -> generateCustomTabsOAuthQuery()
-                Method.WEB_VIEW -> generateWebViewOAuthQuery()
-                else -> generateWebViewOAuthQuery()
+//                Method.WEB_VIEW -> generateWebViewOAuthQuery()
+                else -> generateCustomTabsOAuthQuery()
             }
         }
 
@@ -81,25 +81,25 @@ class NidOAuthQuery {
             return "$REQUEST_AUTHORIZE_URL${parametersToQuery(parameters)}"
         }
 
-        private fun generateWebViewOAuthQuery(): String {
-            val parameters: MutableMap<String, String?> = hashMapOf(
-                "client_id" to clientId,
-                "inapp_view" to "true",
-                "response_type" to "code",
-                "oauth_os" to "android",
-                "version" to "android-$version",
-                "locale" to locale,
-                "redirect_uri" to callbackUrl,
-                "state" to state
-            )
-            parameters["network"] = network
-
-            if (authType == "reprompt") {
-                parameters["auth_type"] = "reprompt"
-            }
-
-            return "$REQUEST_AUTHORIZE_URL${parametersToQuery(parameters)}"
-        }
+//        private fun generateWebViewOAuthQuery(): String {
+//            val parameters: MutableMap<String, String?> = hashMapOf(
+//                "client_id" to clientId,
+//                "inapp_view" to "true",
+//                "response_type" to "code",
+//                "oauth_os" to "android",
+//                "version" to "android-$version",
+//                "locale" to locale,
+//                "redirect_uri" to callbackUrl,
+//                "state" to state
+//            )
+//            parameters["network"] = network
+//
+//            if (authType == "reprompt") {
+//                parameters["auth_type"] = "reprompt"
+//            }
+//
+//            return "$REQUEST_AUTHORIZE_URL${parametersToQuery(parameters)}"
+//        }
 
         private fun parametersToQuery(parameters: Map<String, String?>): String {
             var keys = parameters.keys

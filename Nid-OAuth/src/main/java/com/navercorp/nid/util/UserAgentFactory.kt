@@ -3,8 +3,8 @@ package com.navercorp.nid.util
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.log.NidLog
-import com.nhn.android.naverlogin.OAuthLogin
 
 /**
  *
@@ -37,7 +37,7 @@ object UserAgentFactory {
         }
 
         // 네아로SDK
-        val sdkInfo = "OAuthLoginMod/${OAuthLogin.getVersion()}".refine()
+        val sdkInfo = "OAuthLoginMod/${NaverIdLoginSDK.getVersion()}".refine()
         return "$versionInfo $modelInfo $appInfo $sdkInfo"
     }
 

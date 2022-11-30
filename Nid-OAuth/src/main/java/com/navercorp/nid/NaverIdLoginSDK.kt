@@ -92,11 +92,10 @@ object NaverIdLoginSDK {
      *
      * RefreshToken이 존재하는 경우, 이미 연동이 된 것이므로 AccessToken을 갱신해준다.
      *
-     * @param context authenticate 메서드를 호출한 Activity
+     * @param context authenticate 메서드를 호출한 Activity의 Context
      * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
-     * @param callback 결과값을 받을 콜백
      */
-    fun authenticate(context: Context, launcher :ActivityResultLauncher<Intent>, callback: OAuthLoginCallback) {
+    fun authenticate(context: Context, launcher: ActivityResultLauncher<Intent>) {
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return
@@ -104,16 +103,12 @@ object NaverIdLoginSDK {
 
         oauthLoginCallback = null
 
-        val refreshToken = getRefreshToken()
-        if (refreshToken.isNullOrEmpty()) {
-            val orientation = context.resources.configuration.orientation
-            val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
-                putExtra("orientation", orientation)
-            }
-            launcher.launch(intent)
-        } else {
-            NidOAuthLogin().refreshToken(context, launcher, callback)
+        val orientation = context.resources.configuration.orientation
+        val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+            putExtra("orientation", orientation)
         }
+        launcher.launch(intent)
+        (context as? Activity)?.overridePendingTransition(0, 0)
     }
 
     /**
@@ -121,7 +116,7 @@ object NaverIdLoginSDK {
      *
      * RefreshToken이 존재하는 경우, 이미 연동이 된 것이므로 AccessToken을 갱신해준다.
      *
-     * @param context authenticate 메서드를 호출한 Activity
+     * @param context authenticate 메서드를 호출한 Activity의 Context
      * @param callback 결과값을 받을 콜백
      */
     fun authenticate(context: Context, callback: OAuthLoginCallback) {
@@ -132,16 +127,12 @@ object NaverIdLoginSDK {
 
         oauthLoginCallback = callback
 
-        val refreshToken = getRefreshToken()
-        if (refreshToken.isNullOrEmpty()) {
-            val orientation = context.resources.configuration.orientation
-            val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
-                putExtra("orientation", orientation)
-            }
-            context.startActivity(intent)
-        } else {
-            NidOAuthLogin().refreshToken(context, null, callback)
+        val orientation = context.resources.configuration.orientation
+        val intent = Intent(context, NidOAuthBridgeActivity::class.java).apply {
+            putExtra("orientation", orientation)
         }
+        context.startActivity(intent)
+        (context as? Activity)?.overridePendingTransition(0, 0)
     }
 
     /**
@@ -150,7 +141,7 @@ object NaverIdLoginSDK {
      * @param context authenticate 메서드를 호출한 Activity의 Context
      * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
      */
-    fun reagreeAuthenticate(context: Context, launcher :ActivityResultLauncher<Intent>) {
+    fun reagreeAuthenticate(context: Context, launcher: ActivityResultLauncher<Intent>) {
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return

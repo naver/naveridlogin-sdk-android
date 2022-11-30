@@ -56,6 +56,10 @@ class NidProgressDialog {
     }
 
     fun showProgress(msg: String, cancelListener: DialogInterface.OnCancelListener? = null) {
+        if (context.isFinishing()) {
+            return
+        }
+
         message?.let {
             it.text = msg
         }
@@ -69,7 +73,7 @@ class NidProgressDialog {
     }
 
     fun hideProgress() {
-        if ((context as? Activity)?.isFinishing == true) {
+        if (context.isFinishing()) {
             return
         }
 
@@ -79,3 +83,5 @@ class NidProgressDialog {
         }
     }
 }
+
+fun Context.isFinishing() = (this as? Activity)?.isFinishing == true

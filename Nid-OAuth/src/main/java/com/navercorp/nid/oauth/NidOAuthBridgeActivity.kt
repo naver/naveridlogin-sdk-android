@@ -14,6 +14,9 @@ import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthErrorCode.INSTANCE.fromString
 import com.navercorp.nid.util.AndroidVer
 import com.navercorp.nid.util.NidApplicationUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 /**
@@ -96,7 +99,23 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         if (!isLoginActivityStarted) {
             isLoginActivityStarted = true
             NidLog.d(TAG, "onCreate() first init.")
-            startLoginActivity()
+            val refreshToken = NaverIdLoginSDK.getRefreshToken()
+            if (refreshToken.isNullOrEmpty().not() && authType.isNullOrEmpty()) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val isSuccess = NidOAuthLogin().refreshToken(this@NidOAuthBridgeActivity)
+                    if (isSuccess) {
+                        isForceDestroyed = false
+                        NaverIdLoginSDK.oauthLoginCallback?.onSuccess()
+                        setResult(RESULT_OK)
+                        finish()
+                        overridePendingTransition(0, 0)
+                    } else {
+                        startLoginActivity()
+                    }
+                }
+            } else {
+                startLoginActivity()
+            }
         }
     }
 
@@ -287,6 +306,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         NidOAuthPreferencesManager.lastErrorCode = errorCode
         NidOAuthPreferencesManager.lastErrorDesc = errorDescription
 
+        isForceDestroyed = false
         NaverIdLoginSDK.oauthLoginCallback?.onError(-1, errorDescription)
         setResult(RESULT_CANCELED, intent)
         finish()
