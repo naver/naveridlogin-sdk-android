@@ -12,7 +12,7 @@ The NAVER Login library for Android enables you to easily add the login, logout,
 features to your application.
 
 **How to use NaverIdLogin SDK for Android? <small>(korean)</small>**
-- [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.3.0-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/v5.3.0-%EC%9D%B4%EC%83%81-%EA%B0%80%EC%9D%B4%EB%93%9C-(%EC%B5%9C%EC%8B%A0-v5.4.0))
 - https://developers.naver.com/docs/login/android
 
 **Need help?**
@@ -31,6 +31,8 @@ Naver Login for Android uses libraries below.
 - androidx.constraintlayout:constraintlayout:1.1.3
 - androidx.security:security-crypto:1.1.0-alpha03
 - androidx.core:core-ktx:1.3.0
+- androidx.fragment:fragment-ktx:1.3.6
+- androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0
 - com.squareup.retrofit2:retrofit:2.9.0
 - com.squareup.retrofit2:converter-gson:2.9.0
 - com.squareup.moshi:moshi-kotlin:1.11.0
