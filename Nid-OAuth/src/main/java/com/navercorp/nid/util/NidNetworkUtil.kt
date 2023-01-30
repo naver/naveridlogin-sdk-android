@@ -3,6 +3,7 @@ package com.navercorp.nid.util
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
+import com.navercorp.nid.NaverIdLoginSDK
 
 /**
  *
@@ -16,25 +17,27 @@ import android.os.Build
  */
 object NidNetworkUtil {
 
-    fun getType(context: Context): String {
+    fun getType(): String {
         var networkType = "other"
-        if (isConnected(context, ConnectivityManager.TYPE_MOBILE)) {
+        if (isConnected(ConnectivityManager.TYPE_MOBILE)) {
             networkType = "cell"
-        } else if (isConnected(context, ConnectivityManager.TYPE_WIFI)) {
+        } else if (isConnected(ConnectivityManager.TYPE_WIFI)) {
             networkType = "wifi"
         }
         return networkType
     }
 
-    fun isAvailable(context: Context): Boolean {
+    fun isAvailable(): Boolean {
+        val context = NaverIdLoginSDK.applicationContext
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         var info = manager.activeNetworkInfo
         return info != null && info.isConnected
     }
 
-    fun isNotAvailable(context: Context): Boolean = !isAvailable(context)
+    fun isNotAvailable(): Boolean = !isAvailable()
 
-    private fun isConnected(context: Context, connectType: Int): Boolean {
+    private fun isConnected(connectType: Int): Boolean {
+        val context = NaverIdLoginSDK.applicationContext
         val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (manager != null) {
             if (Build.VERSION.SDK_INT < AndroidVer.API_23_MARSHMALLOW) {

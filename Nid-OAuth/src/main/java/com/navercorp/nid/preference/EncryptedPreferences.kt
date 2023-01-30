@@ -1,4 +1,4 @@
-package com.navercorp.nid.oauth
+package com.navercorp.nid.preference
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -8,11 +8,12 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.log.NidLog
+import com.navercorp.nid.oauth.NidOAuthPreferencesManager
 import com.navercorp.nid.util.AndroidVer
 
 private const val TAG = "EncryptedPreferences"
 
-private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPreferenceData";
+private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPreferenceData"
 
 object EncryptedPreferences {
 
@@ -30,10 +31,30 @@ object EncryptedPreferences {
         init()
     }
 
-    private fun init(): SharedPreferences = EncryptedSharedPreferences
+    private val workaround = listOf<EncryptedSharedPreferenceWorkaround>(
+        IncompatibleSharedPreferencesWorkaround()
+    )
+
+    private fun init(): SharedPreferences {
+        return runCatching {
+            createSharedPreferences(getCtx(), OAUTH_LOGIN_PREF_NAME_PER_APP)
+        }.recoverCatching { throwable ->
+            workaround.firstOrNull {
+                it.apply(getCtx(), OAUTH_LOGIN_PREF_NAME_PER_APP, throwable)
+            } ?: throw throwable
+            createSharedPreferences(getCtx(), OAUTH_LOGIN_PREF_NAME_PER_APP)
+        }.getOrElse { throwable ->
+            throw throwable
+        }
+    }
+
+    private fun createSharedPreferences(
+        context: Context,
+        preferencesName: String
+    ): SharedPreferences = EncryptedSharedPreferences
         .create(
-            getCtx(),
-            OAUTH_LOGIN_PREF_NAME_PER_APP,
+            context,
+            preferencesName,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM

@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.provider.Settings
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity
 import com.navercorp.nid.util.NidApplicationUtil
 
@@ -102,6 +103,10 @@ class NidOAuthIntent {
                         putExtra(OAUTH_REQUEST_AUTH_TYPE, authType)
                     }
 
+                    if (NaverIdLoginSDK.naverappIntentFlag != -1) {
+                        addFlags(NaverIdLoginSDK.naverappIntentFlag)
+                    }
+
                     setPackage(NidOAuthConstants.PACKAGE_NAME_NAVERAPP)
                     action = NidOAuthConstants.SCHEME_OAUTH_LOGIN
                 }
@@ -133,12 +138,17 @@ class NidOAuthIntent {
             }
 
             val instance = LocalBroadcastManager.getInstance(context)
-            instance.registerReceiver(object : BroadcastReceiver() {
+
+            val broadcastReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent?) {
                     listener(intent)
                     instance.unregisterReceiver(this)
                 }
-            }, IntentFilter(NidOAuthCustomTabActivity.ACTION_NAVER_CUSTOM_TAB))
+            }
+
+            (context as? NidOAuthBridgeActivity)?.setBroadcastReceiver(broadcastReceiver)
+
+            instance.registerReceiver(broadcastReceiver, IntentFilter(NidOAuthCustomTabActivity.ACTION_NAVER_CUSTOM_TAB))
 
             return Intent(context, NidOAuthCustomTabActivity::class.java).apply {
                 putExtra(OAUTH_REQUEST_CLIENT_ID, clientId)

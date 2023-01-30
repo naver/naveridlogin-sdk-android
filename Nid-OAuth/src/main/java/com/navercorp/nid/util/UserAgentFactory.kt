@@ -22,7 +22,7 @@ object UserAgentFactory {
     /**
      * UserAgent를 생성한다.
      */
-    fun create(context: Context): String {
+    fun create(): String {
         // Android Version
         val versionInfo = "Android/${Build.VERSION.RELEASE}".refine()
 
@@ -30,7 +30,7 @@ object UserAgentFactory {
         val modelInfo = "Model/${Build.MODEL}".refine()
 
         // Application
-        val appInfo = generateAppInfo(context)
+        val appInfo = generateAppInfo()
 
         if (appInfo.isNullOrEmpty()) {
             return "$versionInfo $modelInfo"
@@ -41,9 +41,10 @@ object UserAgentFactory {
         return "$versionInfo $modelInfo $appInfo $sdkInfo"
     }
 
-    private fun generateAppInfo(context: Context): String? {
+    private fun generateAppInfo(): String? {
         var appInfo: String? = null
         try {
+            val context = NaverIdLoginSDK.applicationContext
             val packageManger = context.packageManager
             val packageInfo = packageManger.getPackageInfo(
                 context.packageName,
@@ -53,7 +54,14 @@ object UserAgentFactory {
             packageInfo.applicationInfo.loadDescription(packageManger)?.let {
                 appId = ",appId:${it}"
             }
-            appInfo = "${context.packageName}/${packageInfo.versionName}(${packageInfo.versionCode},uid:${packageInfo.applicationInfo.uid}${appId})".refine()
+
+            val versionCode = if (Build.VERSION.SDK_INT >= AndroidVer.API_28_PIE) {
+                packageInfo.longVersionCode
+            } else {
+                packageInfo.versionCode.toLong()
+            }
+
+            appInfo = "${context.packageName}/${packageInfo.versionName}($versionCode,uid:${packageInfo.applicationInfo.uid}${appId})".refine()
         } catch (e: PackageManager.NameNotFoundException) {
             appInfo = null
             NidLog.e(TAG, e)

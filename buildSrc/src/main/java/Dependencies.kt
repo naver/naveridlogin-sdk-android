@@ -14,6 +14,8 @@ object Dependencies {
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
         const val crypto = "androidx.security:security-crypto:1.1.0-alpha03"
         const val coreKtx = "androidx.core:core-ktx:1.3.0"
+        const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
+        const val lifecycleViewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"
     }
 
     object HttpClient {

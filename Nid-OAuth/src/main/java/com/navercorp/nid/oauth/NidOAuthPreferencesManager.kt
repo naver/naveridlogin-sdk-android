@@ -2,6 +2,7 @@ package com.navercorp.nid.oauth
 
 import android.media.UnsupportedSchemeException
 import com.navercorp.nid.log.NidLog
+import com.navercorp.nid.preference.EncryptedPreferences
 import java.math.BigInteger
 import java.net.URLEncoder
 import java.security.SecureRandom

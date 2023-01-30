@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.*
+import com.navercorp.nid.preference.EncryptedPreferences
 
 /**
  *
@@ -34,6 +35,11 @@ object NaverIdLoginSDK {
      * Custom Tabs를 활용한 OAuth에서 재인증 수행 여부를 결정한다.
      */
     var isRequiredCustomTabsReAuth: Boolean = false
+
+    /**
+     * 네이버앱 호출 시 추가할 FLAG
+     */
+    var naverappIntentFlag: Int = -1
 
     /**
      * 로그인 후 실행될 callback

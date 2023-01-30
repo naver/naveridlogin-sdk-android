@@ -208,6 +208,7 @@ class MainActivity : AppCompatActivity() {
         // 네이버앱 로그인 (Callback)
         binding.loginWithNaverapp.setOnClickListener {
             NaverIdLoginSDK.behavior = NidOAuthBehavior.NAVERAPP
+//            NaverIdLoginSDK.naverappIntentFlag = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK  // naverappIntent 생성 시 flag 추가
             NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()

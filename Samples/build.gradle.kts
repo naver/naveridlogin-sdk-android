@@ -52,6 +52,9 @@ dependencies {
     /* 네아로 SDK from Maven */
 //    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.6'
 
+    /* leakCanary */
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.9.1")
+
     implementation("androidx.multidex:multidex:2.0.1")
 
     implementation("androidx.core:core-ktx:1.3.1")

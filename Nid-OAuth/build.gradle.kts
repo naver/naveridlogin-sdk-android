@@ -62,6 +62,8 @@ dependencies {
         implementation(constraintLayout)
         implementation(crypto)
         implementation(coreKtx)
+        implementation(fragmentKtx)
+        implementation(lifecycleViewModel)
     }
 
     Dependencies.HttpClient.run {

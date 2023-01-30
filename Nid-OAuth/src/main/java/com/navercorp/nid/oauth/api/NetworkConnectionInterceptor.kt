@@ -10,7 +10,7 @@ class NetworkConnectionInterceptor: Interceptor {
 
     @Throws(NoConnectivityException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        if (NidNetworkUtil.isNotAvailable(NaverIdLoginSDK.applicationContext)) {
+        if (NidNetworkUtil.isNotAvailable()) {
             throw NoConnectivityException()
         }
 
