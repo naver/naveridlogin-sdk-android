@@ -2,21 +2,25 @@ package com.navercorp.nid.oauth
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.NaverIdLoginSDK.behavior
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthErrorCode.INSTANCE.fromString
+import com.navercorp.nid.oauth.viewModel.NidOAuthBridgeViewModel
+import com.navercorp.nid.progress.NidProgressDialog
 import com.navercorp.nid.util.AndroidVer
 import com.navercorp.nid.util.NidApplicationUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.nhn.android.oauth.R
 
 
 /**
@@ -39,12 +43,11 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         const val CUSTOM_TABS_LOGIN = -1
     }
 
-    private lateinit var clientName: String
+    private val viewModel by viewModels<NidOAuthBridgeViewModel>()
 
-    private var isForceDestroyed = true
-    private var isRotated = false
-
-    private var isLoginActivityStarted = false
+    private val progress by lazy {
+        NidProgressDialog(this)
+    }
 
     private var authType: String? = null
 
@@ -67,8 +70,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 			return false
 		}
 
-        clientName = NidOAuthPreferencesManager.clientName!!
-
         val screenOrientation = intent.getIntExtra("orientation", 1)
         requestedOrientation = screenOrientation
 
@@ -88,34 +89,41 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             return
         }
 
-        if (null != savedInstanceState) {
-            isLoginActivityStarted = savedInstanceState.getBoolean("IsLoginActivityStarted")
-        }
+        NidLog.d(TAG, "onCreate() | isLoginActivityStarted : ${viewModel.getIsLoginActivityStarted()}")
 
-        NidLog.d(TAG, "onCreate() | isLoginActivityStarted : $isLoginActivityStarted")
+        viewModel.setIsRotated(false)
 
-        isRotated = false
-
-        if (!isLoginActivityStarted) {
-            isLoginActivityStarted = true
+        if (!viewModel.getIsLoginActivityStarted()) {
+            viewModel.startLoginActivity()
             NidLog.d(TAG, "onCreate() first init.")
             val refreshToken = NaverIdLoginSDK.getRefreshToken()
             if (refreshToken.isNullOrEmpty().not() && authType.isNullOrEmpty()) {
-                CoroutineScope(Dispatchers.Main).launch {
-                    val isSuccess = NidOAuthLogin().refreshToken(this@NidOAuthBridgeActivity)
-                    if (isSuccess) {
-                        isForceDestroyed = false
-                        NaverIdLoginSDK.oauthLoginCallback?.onSuccess()
-                        setResult(RESULT_OK)
-                        finish()
-                        overridePendingTransition(0, 0)
-                    } else {
-                        startLoginActivity()
-                    }
-                }
+                viewModel.refreshToken()
             } else {
                 startLoginActivity()
             }
+        }
+
+        viewModel.isSuccessRefreshToken.observe(this) { isSuccess ->
+            NidLog.d(TAG, "isSuccessRefreshToken : $isSuccess")
+            if (isSuccess) {
+                viewModel.isNotForcedFinish()
+                NaverIdLoginSDK.oauthLoginCallback?.onSuccess()
+                setResult(RESULT_OK)
+                finish()
+                overridePendingTransition(0, 0)
+            } else {
+                startLoginActivity()
+            }
+        }
+
+        viewModel.isShowProgress.observe(this) { isShowProgress ->
+            if (isShowProgress) {
+                progress.showProgress(R.string.naveroauthlogin_string_getting_token)
+            } else {
+                progress.hideProgress()
+            }
+
         }
     }
 
@@ -128,7 +136,13 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         NidLog.d(TAG, "called onConfigurationChanged()")
-        isRotated = true
+        viewModel.setIsRotated(true)
+    }
+
+    private var broadcastReceiver: BroadcastReceiver? = null
+
+    fun setBroadcastReceiver(receiver: BroadcastReceiver) {
+        broadcastReceiver = receiver
     }
 
     override fun onDestroy() {
@@ -136,39 +150,25 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
         NidLog.d(TAG, "called onDestroy()")
 
-        if (isForceDestroyed && !isRotated) {
+        if (viewModel.getIsForceDestroyed() && !viewModel.getIsRotated()) {
             NidOAuthPreferencesManager.lastErrorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             NidOAuthPreferencesManager.lastErrorDesc = "OAuthLoginActivity is destroyed."
 
             NaverIdLoginSDK.oauthLoginCallback?.onError(-1, "OAuthLoginActivity is destroyed.")
             setResult(RESULT_CANCELED)
         }
-    }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        NidLog.d(TAG, "called onRestoreInstanceState()")
-
-        isLoginActivityStarted = savedInstanceState.getBoolean("IsLoginActivityStarted")
-        isForceDestroyed = savedInstanceState.getBoolean("isForceDestroyed")
-        isRotated = savedInstanceState.getBoolean("isRotated")
-
-        val state = savedInstanceState.getString("OAuthLoginData_state")
-        if (state.isNullOrEmpty()) {
-            NidOAuthPreferencesManager.initState = state
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        NidLog.d(TAG, "called onSaveInstanceState()")
-
-        outState.apply {
-            putBoolean("IsLoginActivityStarted", isLoginActivityStarted)
-            putBoolean("isForceDestroyed", isForceDestroyed)
-            putBoolean("isRotated", isRotated)
-            putString("OAuthLoginData_state", NidOAuthPreferencesManager.initState)
+        broadcastReceiver?.let { receiver ->
+            runCatching {
+                val broadcastManager = LocalBroadcastManager.getInstance(this@NidOAuthBridgeActivity)
+                broadcastManager.unregisterReceiver(receiver)
+            }.onFailure { t ->
+                if (t is IllegalArgumentException) {
+                    // 등록되어 있지 않은 Receiver
+                }
+            }.also {
+                broadcastReceiver = null
+            }
         }
     }
 
@@ -207,7 +207,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             NidOAuthBehavior.DEFAULT -> {
                 if (tryOAuthByNaverapp()) return
                 if (tryOAuthByCustomTab()) return
-                isForceDestroyed = false
+                viewModel.isNotForcedFinish()
                 oauthFinish(Intent(), NidOAuthErrorCode.ERROR_NO_CATAGORIZED, "인증을 진행할 수 있는 앱이 없습니다.")
             }
         }
@@ -229,7 +229,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         } else if (intent.data != null) {
             try {
                 startActivity(intent)
-                isForceDestroyed = false
+                viewModel.isNotForcedFinish()
                 NaverIdLoginSDK.oauthLoginCallback?.onError(-1, "네이버앱 업데이트가 필요합니다.")
                 setResult(Activity.RESULT_CANCELED)
                 finish()
@@ -268,7 +268,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     @Deprecated("WebView is deprecated")
     private fun startLoginWebviewActivity() {
         Toast.makeText(this, "더이상 인앱브라우저(웹뷰)는 사용할 수 없습니다.(WebView is deprecated)", Toast.LENGTH_SHORT).show()
-        isForceDestroyed = false
+        viewModel.isNotForcedFinish()
         oauthFinish(Intent(), NidOAuthErrorCode.WEB_VIEW_IS_DEPRECATED, "webView is deprecated")
 //        val intent = NidOAuthIntent.Builder(this)
 //            .setType(NidOAuthIntent.Type.WEB_VIEW)
@@ -306,7 +306,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         NidOAuthPreferencesManager.lastErrorCode = errorCode
         NidOAuthPreferencesManager.lastErrorDesc = errorDescription
 
-        isForceDestroyed = false
+        viewModel.isNotForcedFinish()
         NaverIdLoginSDK.oauthLoginCallback?.onError(-1, errorDescription)
         setResult(RESULT_CANCELED, intent)
         finish()
@@ -316,7 +316,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         NidLog.d(TAG, "called onActivityResult()")
-        isForceDestroyed = false
+        viewModel.isNotForcedFinish()
 
         if (requestCode == CUSTOM_TABS_LOGIN && resultCode == RESULT_CANCELED) {
             NidLog.d(TAG, "activity call by customtab")

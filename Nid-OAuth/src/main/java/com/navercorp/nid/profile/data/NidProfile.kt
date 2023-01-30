@@ -1,7 +1,9 @@
 package com.navercorp.nid.profile.data
 
+import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+@Keep
 data class NidProfile(
     @SerializedName("id")
     val id: String?,

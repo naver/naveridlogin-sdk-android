@@ -244,10 +244,8 @@ class NidOAuthLogin {
         }
     }
 
-    suspend fun refreshToken(context: Context) = withContext(Dispatchers.Main) {
-        val progressDialog = NidProgressDialog(context)
-
-        progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
+    suspend fun refreshToken() = withContext(Dispatchers.Main) {
+        val context = NaverIdLoginSDK.applicationContext
         val accessToken = requestRefreshAccessToken(context, object: OAuthLoginCallback {
             override fun onSuccess() {
                 NidLog.d(TAG, "requestRefreshAccessToken | onSuccess()")
@@ -262,7 +260,6 @@ class NidOAuthLogin {
             }
 
         })
-        progressDialog.hideProgress()
 
         return@withContext accessToken.isNullOrEmpty().not()
     }

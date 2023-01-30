@@ -35,7 +35,7 @@ class NidOAuthQuery {
         private var state: String? = NidOAuthPreferencesManager.initState
         private var callbackUrl: String? = NidOAuthPreferencesManager.callbackUrl
         private var locale = NidDeviceUtil.getLocale(context)
-        private var network = NidNetworkUtil.getType(context)
+        private var network = NidNetworkUtil.getType()
         private var version = NidOAuthConstants.SDK_VERSION
         private var authType: String? = null
 
