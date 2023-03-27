@@ -22,25 +22,12 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         const val ACTION_NAVER_CUSTOM_TAB = "ACTION_NAVER_3RDPARTY_CUSTOM_TAB"
     }
 
-    private lateinit var oauthUrl: String
     private var isCustomTabOpen = false
     private var isCalledNewIntent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        init()
-    }
-
-    private fun init() {
-        if (intent == null) {
-            return
-        }
-
-        oauthUrl = NidOAuthQuery.Builder(this)
-            .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
-            .setAuthType(intent.getStringExtra("auth_type"))
-            .build()
+        NidLog.d(TAG, "called onCreate()")
     }
 
     override fun onResume() {
@@ -89,6 +76,11 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
     private fun openCustomTab() {
         isCustomTabOpen = true
+
+        val oauthUrl = NidOAuthQuery.Builder(this)
+            .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
+            .setAuthType(intent.getStringExtra("auth_type"))
+            .build()
 
         val customTabsIntent = CustomTabsIntent.Builder()
             .setShowTitle(true)

@@ -22,7 +22,11 @@ android {
     }
 
     buildTypes {
-        getByName("release") {}
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"),"proguard-rules.pro")
+        }
         getByName("debug") {}
     }
     compileOptions {

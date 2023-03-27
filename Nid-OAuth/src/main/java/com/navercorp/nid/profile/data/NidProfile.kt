@@ -26,6 +26,7 @@ data class NidProfile(
     @SerializedName("mobile")
     val mobile: String?,
     @SerializedName("ci")
-    val ci: String?
-
+    val ci: String?,
+    @SerializedName("enc_id")
+    val encId: String?,
 )
