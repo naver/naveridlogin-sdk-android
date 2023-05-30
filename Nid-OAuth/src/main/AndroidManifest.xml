@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+    package="com.nhn.android.oauth" >
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <!-- 네이버앱 : 로그인, 스킴로그인 -->
+        <package android:name="com.nhn.android.search"/>
+        <!-- 커스텀탭 로그인 -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <package android:name="com.android.chrome"/>
+    </queries>
+
+    <application>
+
+<!--        <activity-->
+<!--            android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"-->
+<!--            android:configChanges="orientation|screenSize"-->
+<!--            android:theme="@style/Theme.AppCompat.Light.Dialog" />-->
+
+
+        <activity
+            android:name="com.navercorp.nid.oauth.NidOAuthBridgeActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
+
+<!--        <activity-->
+<!--            android:name="com.navercorp.nid.oauth.activity.NidOAuthWebViewActivity"-->
+<!--            android:configChanges="orientation|screenSize"-->
+<!--            android:screenOrientation="behind"-->
+<!--            android:label="OAuth2.0 by WebView"-->
+<!--            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"/>-->
+
+        <activity
+            android:name="com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="behind"
+            android:launchMode="singleTask"
+            android:label="OAuth2.0 by Custom tabs"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Intent URL 에서 로그인 액티비티를 실행하기 위해 설정-->
+                <data
+                    android:scheme="naver3rdpartylogin"
+                    android:host="authorize"
+                    android:path="/"/>
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Button">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">2dip</item>
+    </style>
+
+    <style name="Button.Menu" parent="Button">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:lines">1</item>
+    </style>
+</resources>
