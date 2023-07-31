@@ -36,7 +36,8 @@ enum class NidOAuthErrorCode(
     CLIENT_USER_CANCEL ("user_cancel", "user_cancel"),
     ACTIVITY_IS_SINGLE_TASK("activity_is_single_task", "activity_is_single_task"),
     WEB_VIEW_IS_DEPRECATED("web_view_is_deprecated", "web_view_is_deprecated"),
-    NO_APP_FOR_AUTHENTICATION("no_app_for_authentication", "no_app_for_authentication");
+    NO_APP_FOR_AUTHENTICATION("no_app_for_authentication", "no_app_for_authentication"),
+    SDK_IS_NOT_INITIALIZED("sdk_is_not_initialized", "sdk_is_not_initialized");
 
     companion object INSTANCE {
         fun fromString(code: String?): NidOAuthErrorCode {

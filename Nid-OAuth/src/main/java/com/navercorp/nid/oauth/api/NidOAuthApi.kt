@@ -20,7 +20,7 @@ import retrofit2.Response
  */
 class NidOAuthApi {
 
-    suspend fun requestAccessToken(context: Context): Response<NidOAuthResponse> {
+    suspend fun requestAccessToken(): Response<NidOAuthResponse> {
 
         val clientId = NidOAuthPreferencesManager.clientId ?: ""
         val clientSecret = NidOAuthPreferencesManager.clientSecret ?: ""
@@ -35,11 +35,11 @@ class NidOAuthApi {
             state = state,
             code = code,
             version = "android-${NidOAuthConstants.SDK_VERSION}",
-            locale = NidDeviceUtil.getLocale(context)
+            locale = NidDeviceUtil.getLocale()
         )
     }
 
-    suspend fun requestRefreshToken (context: Context): Response<NidOAuthResponse> {
+    suspend fun requestRefreshToken (): Response<NidOAuthResponse> {
 
         val clientId = NidOAuthPreferencesManager.clientId ?: ""
         val clientSecret = NidOAuthPreferencesManager.clientSecret ?: ""
@@ -52,11 +52,11 @@ class NidOAuthApi {
             clientSecret = clientSecret,
             refreshToken = refreshToken,
             version = "android-${NidOAuthConstants.SDK_VERSION}",
-            locale = NidDeviceUtil.getLocale(context)
+            locale = NidDeviceUtil.getLocale()
         )
     }
 
-    suspend fun deleteToken(context: Context): Response<NidOAuthResponse> {
+    suspend fun deleteToken(): Response<NidOAuthResponse> {
 
         val clientId = NidOAuthPreferencesManager.clientId ?: ""
         val clientSecret = NidOAuthPreferencesManager.clientSecret ?: ""
@@ -69,7 +69,7 @@ class NidOAuthApi {
             clientSecret = clientSecret,
             accessToken = accessToken,
             version = "android-${NidOAuthConstants.SDK_VERSION}",
-            locale = NidDeviceUtil.getLocale(context)
+            locale = NidDeviceUtil.getLocale()
         )
     }
 

@@ -53,6 +53,11 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     private fun initData(): Boolean {
 
+        if (NaverIdLoginSDK.isInitialized().not()) {
+            finishWithErrorResult(NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED)
+            return false
+        }
+
         if (NidOAuthPreferencesManager.clientId.isNullOrEmpty()) {
 			finishWithErrorResult(NidOAuthErrorCode.CLIENT_ERROR_NO_CLIENTID)
 			return false
@@ -83,7 +88,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         NidLog.d(TAG, "called onCreate()")
 
-        NaverIdLoginSDK.applicationContext = this.applicationContext
+        NaverIdLoginSDK.init(this)
 
         if (!initData()) {
             return

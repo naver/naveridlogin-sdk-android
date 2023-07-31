@@ -29,12 +29,12 @@ class NidOAuthQuery {
 //        const val REQUEST_ACCESS_TOKEN_URL = "https://nid.naver.com/oauth2.0/token?"
     }
 
-    class Builder(context: Context) {
+    class Builder {
         private var method: Method? = null
         private var clientId: String? = NidOAuthPreferencesManager.clientId
         private var state: String? = NidOAuthPreferencesManager.initState
         private var callbackUrl: String? = NidOAuthPreferencesManager.callbackUrl
-        private var locale = NidDeviceUtil.getLocale(context)
+        private var locale = NidDeviceUtil.getLocale()
         private var network = NidNetworkUtil.getType()
         private var version = NidOAuthConstants.SDK_VERSION
         private var authType: String? = null

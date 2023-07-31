@@ -18,7 +18,7 @@ private const val OAUTH_LOGIN_PREF_NAME_PER_APP  = "NaverOAuthLoginEncryptedPref
 object EncryptedPreferences {
 
     private var context: Context? = null
-    private fun getCtx() = context ?: NaverIdLoginSDK.applicationContext
+    private fun getCtx() = context ?: NaverIdLoginSDK.getApplicationContext()
 
     private val masterKey: MasterKey by lazy {
         MasterKey.Builder(getCtx())

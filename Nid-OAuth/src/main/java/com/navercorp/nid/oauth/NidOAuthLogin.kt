@@ -33,7 +33,7 @@ class NidOAuthLogin {
         val response: Response<NidOAuthResponse>
         try {
             response = withContext(Dispatchers.IO) {
-                NidOAuthApi().requestAccessToken(context)
+                NidOAuthApi().requestAccessToken()
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
@@ -82,7 +82,7 @@ class NidOAuthLogin {
         val response: Response<NidOAuthResponse>
         try {
             response = withContext(Dispatchers.IO) {
-                NidOAuthApi().requestAccessToken(context)
+                NidOAuthApi().requestAccessToken()
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
@@ -126,12 +126,12 @@ class NidOAuthLogin {
 
     }
 
-    private suspend fun requestRefreshAccessToken(context: Context, callback: OAuthLoginCallback): String? {
+    private suspend fun requestRefreshAccessToken(callback: OAuthLoginCallback): String? {
 
         val response: Response<NidOAuthResponse>
         try {
             response = withContext(Dispatchers.IO) {
-                NidOAuthApi().requestRefreshToken(context)
+                NidOAuthApi().requestRefreshToken()
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
@@ -167,15 +167,15 @@ class NidOAuthLogin {
         return response.body()?.accessToken
     }
 
-    fun callRefreshAccessTokenApi(context: Context, callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
-        requestRefreshAccessToken(context, callback)
+    fun callRefreshAccessTokenApi(callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
+        requestRefreshAccessToken(callback)
     }
 
-    fun callDeleteTokenApi(context: Context, callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
+    fun callDeleteTokenApi(callback: OAuthLoginCallback) = CoroutineScope(Dispatchers.Main).launch {
         val response: Response<NidOAuthResponse>
         try {
             response = withContext(Dispatchers.IO) {
-                NidOAuthApi().deleteToken(context)
+                NidOAuthApi().deleteToken()
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)
@@ -245,8 +245,7 @@ class NidOAuthLogin {
     }
 
     suspend fun refreshToken() = withContext(Dispatchers.Main) {
-        val context = NaverIdLoginSDK.applicationContext
-        val accessToken = requestRefreshAccessToken(context, object: OAuthLoginCallback {
+        val accessToken = requestRefreshAccessToken(object: OAuthLoginCallback {
             override fun onSuccess() {
                 NidLog.d(TAG, "requestRefreshAccessToken | onSuccess()")
             }

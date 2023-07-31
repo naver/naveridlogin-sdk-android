@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import androidx.browser.customtabs.CustomTabsService
@@ -122,6 +123,10 @@ object NidApplicationUtil {
             NidLog.d(TAG, e)
             -1
         }
+    }
+
+    fun getConnectivityManager(context: Context): ConnectivityManager {
+        return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
 
 }

@@ -44,7 +44,7 @@ object UserAgentFactory {
     private fun generateAppInfo(): String? {
         var appInfo: String? = null
         try {
-            val context = NaverIdLoginSDK.applicationContext
+            val context = NaverIdLoginSDK.getApplicationContext()
             val packageManger = context.packageManager
             val packageInfo = packageManger.getPackageInfo(
                 context.packageName,

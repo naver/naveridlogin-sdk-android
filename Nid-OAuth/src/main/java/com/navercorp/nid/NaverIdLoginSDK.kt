@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import com.navercorp.nid.exception.NaverIdLoginSDKNotInitializedException
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.*
 import com.navercorp.nid.preference.EncryptedPreferences
@@ -49,7 +50,28 @@ object NaverIdLoginSDK {
     /**
      * Application Context
      */
-    lateinit var applicationContext: Context
+    private var applicationContext: Context? = null
+
+    fun init(context: Context) {
+        // Application Context 저장
+        if (applicationContext == null) {
+            applicationContext = context.applicationContext
+        }
+    }
+
+    fun isInitialized(): Boolean {
+        return applicationContext != null
+    }
+
+    fun getApplicationContext(): Context {
+        val context = applicationContext
+
+        if (context != null) {
+            return context
+        } else {
+            throw NaverIdLoginSDKNotInitializedException()
+        }
+    }
 
     /**
      * OAuth 인증시 필요한 값들을 preference에 저장함. 2015년 8월 이후에 등록하여 package name 을 넣은 경우 사용.

@@ -5,12 +5,12 @@ object Configurations {
     /* Module */
     const val compileSdkVersion = 33
     const val buildToolsVersion = "30.0.2"
-    const val targetSdkVersion = 31
+    const val targetSdkVersion = 33
     const val minSdkVersion = 21
 
     /* Version */
-    const val moduleVersionName = "5.6.0"
-    const val moduleVersionCode = 5_06_00
+    const val moduleVersionName = "5.7.0"
+    const val moduleVersionCode = 5_07_00
 
     /* Project ClassPath */
     object Plugins {
