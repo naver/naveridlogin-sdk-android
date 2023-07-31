@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Ver x.y.z
+이후 변경사항은 [릴리즈 노트](https://github.com/naver/naveridlogin-sdk-android/wiki/%EB%A6%B4%EB%A6%AC%EC%A6%88-%EB%85%B8%ED%8A%B8)를 참고해 주세요.
+
+---
+
 ## Ver 4.2.3
 
 ### 기능 개선

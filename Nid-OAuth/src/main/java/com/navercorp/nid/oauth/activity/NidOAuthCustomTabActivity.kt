@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthErrorCode
 import com.navercorp.nid.oauth.NidOAuthIntent
@@ -28,6 +29,8 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NidLog.d(TAG, "called onCreate()")
+
+        NaverIdLoginSDK.init(this)
     }
 
     override fun onResume() {
@@ -77,7 +80,11 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     private fun openCustomTab() {
         isCustomTabOpen = true
 
-        val oauthUrl = NidOAuthQuery.Builder(this)
+        if (NaverIdLoginSDK.isInitialized().not()) {
+            responseError(null, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.code, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.description)
+        }
+
+        val oauthUrl = NidOAuthQuery.Builder()
             .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
             .setAuthType(intent.getStringExtra("auth_type"))
             .build()

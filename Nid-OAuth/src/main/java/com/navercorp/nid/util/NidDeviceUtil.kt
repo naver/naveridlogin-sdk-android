@@ -2,6 +2,7 @@ package com.navercorp.nid.util
 
 import android.content.Context
 import android.os.Build
+import com.navercorp.nid.NaverIdLoginSDK
 import java.net.URLEncoder
 import java.util.*
 
@@ -20,7 +21,9 @@ object NidDeviceUtil {
     /**
      * 현재 기기의 locale 값을 반환한다.
      */
-    fun getSystemLocale(context: Context) : Locale {
+    fun getSystemLocale() : Locale {
+        val context = NaverIdLoginSDK.getApplicationContext()
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.resources.configuration.locales.get(0)
         } else {
@@ -31,8 +34,8 @@ object NidDeviceUtil {
     /**
      * 현재 기기에 지정된 언어값을 반환한다.
      */
-    fun getLocale(context: Context) : String {
-        var systemLocale = getSystemLocale(context)
+    fun getLocale() : String {
+        var systemLocale = getSystemLocale()
         if (systemLocale.toString().isEmpty()) {
             return "ko_KR"
         }
@@ -47,5 +50,5 @@ object NidDeviceUtil {
         return locale
     }
 
-    fun isKorean(context: Context) : Boolean = getSystemLocale(context).language.startsWith("ko")
+    fun isKorean() : Boolean = getSystemLocale().language.startsWith("ko")
 }

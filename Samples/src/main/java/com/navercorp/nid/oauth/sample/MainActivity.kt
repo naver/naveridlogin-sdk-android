@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
 
         // 연동 끊기
         binding.deleteToken.setOnClickListener {
-            NidOAuthLogin().callDeleteTokenApi(context, object : OAuthLoginCallback {
+            NidOAuthLogin().callDeleteTokenApi(object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
 
         // 토큰 갱신
         binding.refreshToken.setOnClickListener {
-            NidOAuthLogin().callRefreshAccessTokenApi(context, object : OAuthLoginCallback {
+            NidOAuthLogin().callRefreshAccessTokenApi(object : OAuthLoginCallback {
                 override fun onSuccess() {
                     updateView()
                 }
