@@ -1,28 +1,23 @@
 package com.navercorp.nid.oauth.sample
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.navercorp.nid.oauth.NidOAuthBehavior
-import com.navercorp.nid.oauth.NidOAuthBridgeActivity
 import com.navercorp.nid.oauth.NidOAuthLogin
 import com.navercorp.nid.oauth.sample.databinding.ActivityMainBinding
 import com.navercorp.nid.profile.NidProfileCallback
+import com.navercorp.nid.profile.data.NidProfileMap
 import com.navercorp.nid.profile.data.NidProfileResponse
 
 class MainActivity : AppCompatActivity() {
@@ -202,7 +197,35 @@ class MainActivity : AppCompatActivity() {
                     onFailure(errorCode, message)
                 }
             })
+        }
 
+        // 프로필 Map 호출
+        binding.profileMapApi.setOnClickListener {
+            NidOAuthLogin().getProfileMap(object : NidProfileCallback<NidProfileMap> {
+                override fun onSuccess(result: NidProfileMap) {
+                    Toast.makeText(
+                        context,
+                        "$result",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.tvApiResult.text = result.toString()
+                }
+
+                override fun onFailure(httpStatus: Int, message: String) {
+                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                    Toast.makeText(
+                        context,
+                        "errorCode:$errorCode, errorDesc:$errorDescription",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    binding.tvApiResult.text = ""
+                }
+
+                override fun onError(errorCode: Int, message: String) {
+                    onFailure(errorCode, message)
+                }
+            })
         }
 
         // 네이버앱 로그인 (Callback)

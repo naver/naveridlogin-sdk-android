@@ -3,6 +3,7 @@ package com.navercorp.nid.profile.api
 import com.navercorp.nid.oauth.NidOAuthConstants
 import com.navercorp.nid.oauth.api.NetworkConnectionInterceptor
 import com.navercorp.nid.oauth.api.UserAgentInterceptor
+import com.navercorp.nid.profile.data.NidProfileMap
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.nhn.android.oauth.BuildConfig
 import okhttp3.OkHttpClient
@@ -20,6 +21,11 @@ interface NidProfileService {
     suspend fun requestApi(
         @Header("Authorization") authorization: String
     ): Response<NidProfileResponse>
+
+    @GET("nid/me")
+    suspend fun getProfileMap(
+        @Header("Authorization") authorization: String
+    ): Response<NidProfileMap>
 
     companion object Factory {
 

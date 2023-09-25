@@ -2,9 +2,6 @@ package com.navercorp.nid.oauth
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.MainThread
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.exception.NoConnectivityException
 import com.navercorp.nid.log.NidLog
@@ -12,6 +9,7 @@ import com.navercorp.nid.oauth.api.NidOAuthApi
 import com.navercorp.nid.oauth.data.NidOAuthResponse
 import com.navercorp.nid.profile.NidProfileCallback
 import com.navercorp.nid.profile.api.NidProfileApi
+import com.navercorp.nid.profile.data.NidProfileMap
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.navercorp.nid.progress.NidProgressDialog
 import com.nhn.android.oauth.R
@@ -234,6 +232,38 @@ class NidOAuthLogin {
                     callback.onSuccess(res)
                 } else {
                     callback.onFailure(response.code(), "${res?.resultCode ?: ""} ${res?.message ?: ""}")
+                }
+            }
+            in 400 until 500 -> callback.onFailure(response.code(), response.message())
+            else -> {
+                errorHandling(errorCode = response.code())
+                callback.onError(response.code(), response.message())
+            }
+        }
+    }
+
+    fun getProfileMap(callback: NidProfileCallback<NidProfileMap>) = CoroutineScope(Dispatchers.Main).launch {
+        val response: Response<NidProfileMap>
+        try {
+            response = withContext(Dispatchers.IO) {
+                NidProfileApi().getNidProfileJson()
+            }
+        } catch (t: Throwable) {
+            errorHandling(throwable = t)
+            callback.onError(-1, t.toString())
+            return@launch
+        }
+
+        val res = response.body()
+
+        when (response.code()) {
+            in 200 until 300 -> {
+                val id = res?.profile?.get("id") as? String
+
+                if (res?.profile != null && id.isNullOrEmpty().not()) {
+                    callback.onSuccess(res)
+                } else {
+                    callback.onFailure(response.code(), "resultCode : ${res?.resultCode ?: ""}, message : ${res?.message ?: ""}")
                 }
             }
             in 400 until 500 -> callback.onFailure(response.code(), response.message())
