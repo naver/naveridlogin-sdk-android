@@ -31,9 +31,11 @@ object EncryptedPreferences {
         init()
     }
 
-    private val workaround = listOf<EncryptedSharedPreferenceWorkaround>(
+    private val workaround = listOf(
         IncompatibleSharedPreferencesWorkaround(),
         KeyStoreSharedPreferencesWorkaround(),
+        AEADBadTagSharedPreferencesWorkaround(),
+        GeneralSecurityPreferencesWorkaround(),
     )
 
     private fun init(): SharedPreferences {

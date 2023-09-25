@@ -36,8 +36,8 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
-    lint.isAbortOnError = false
-    lint.isCheckReleaseBuilds = false
+    lint.abortOnError = false
+    lint.checkReleaseBuilds = false
 
     buildFeatures {
         viewBinding = true

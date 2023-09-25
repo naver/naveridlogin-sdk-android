@@ -9,7 +9,7 @@ object Dependencies {
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:1.3.1"
         const val coreUtils = "androidx.legacy:legacy-support-core-utils:$androidxVersion"
-        const val browser = "androidx.browser:browser:$androidxVersion"
+        const val browser = "androidx.browser:browser:1.4.0"
         const val supportV4 = "androidx.legacy:legacy-support-v4:$androidxVersion"
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:1.1.3"
         const val crypto = "androidx.security:security-crypto:1.1.0-alpha06"

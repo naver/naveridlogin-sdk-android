@@ -129,40 +129,22 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/logout"
+                android:id="@+id/reagreeLoginLauncher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
-                android:text="로그아웃"/>
+                android:text="재동의 로그인(Launcher)"/>
 
             <Button
-                android:id="@+id/deleteToken"
+                android:id="@+id/reagreeLoginCallback"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
-                android:text="연동 끊기"/>
-
-            <Button
-                android:id="@+id/refreshToken"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dp"
-                android:layout_gravity="center"
-                android:text="토큰 갱신"/>
-
-            <Button
-                android:id="@+id/profileApi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dp"
-                android:layout_gravity="center"
-                android:text="API 호출"/>
+                android:text="재동의 로그인(Callback)"/>
 
         </LinearLayout>
 
@@ -201,7 +183,40 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/logout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="로그아웃"/>
+
+            <Button
+                android:id="@+id/deleteToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="연동 끊기"/>
+
+            <Button
+                android:id="@+id/refreshToken"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:text="토큰 갱신"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -210,22 +225,24 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/reagreeLoginLauncher"
+                android:id="@+id/profileApi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAllCaps="false"
                 android:layout_weight="1"
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
-                android:text="재동의 로그인(Launcher)"/>
+                android:text="프로필 API 호출(NidProfile)"/>
 
             <Button
-                android:id="@+id/reagreeLoginCallback"
+                android:id="@+id/profileMapApi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAllCaps="false"
                 android:layout_weight="1"
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
-                android:text="재동의 로그인(Callback)"/>
+                android:text="프로필 map API 호출"/>
 
         </LinearLayout>
 
