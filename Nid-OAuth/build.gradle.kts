@@ -58,7 +58,6 @@ dependencies {
         implementation(appcompat)
         implementation(coreUtils)
         implementation(browser)
-        implementation(supportV4)
         implementation(constraintLayout)
         implementation(crypto)
         implementation(coreKtx)

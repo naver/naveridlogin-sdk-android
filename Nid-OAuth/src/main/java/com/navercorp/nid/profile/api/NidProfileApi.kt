@@ -13,7 +13,7 @@ class NidProfileApi {
         return service.requestApi("Bearer $accessToken")
     }
 
-    suspend fun getNidProfileJson():Response<NidProfileMap> {
+    suspend fun getNidProfileMap():Response<NidProfileMap> {
         val accessToken = NidOAuthPreferencesManager.accessToken ?: ""
         val service = NidProfileService.create()
         return service.getProfileMap("Bearer $accessToken")
