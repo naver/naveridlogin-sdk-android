@@ -246,7 +246,7 @@ class NidOAuthLogin {
         val response: Response<NidProfileMap>
         try {
             response = withContext(Dispatchers.IO) {
-                NidProfileApi().getNidProfileJson()
+                NidProfileApi().getNidProfileMap()
             }
         } catch (t: Throwable) {
             errorHandling(throwable = t)

@@ -94,7 +94,7 @@ class GeneralSecurityPreferencesWorkaround: EncryptedSharedPreferenceWorkaround 
         if (statusMap[fileName] == true) {
             return false
         }
-        if (isKeyStoreError(throwable).not()) {
+        if (isGeneralSecurityError(throwable).not()) {
             return false
         }
         statusMap[fileName] = true
@@ -107,7 +107,7 @@ class GeneralSecurityPreferencesWorkaround: EncryptedSharedPreferenceWorkaround 
         return true
     }
 
-    private fun isKeyStoreError(throwable: Throwable): Boolean {
+    private fun isGeneralSecurityError(throwable: Throwable): Boolean {
         val message = throwable.toString()
         return message.contains("GeneralSecurityException")
     }
