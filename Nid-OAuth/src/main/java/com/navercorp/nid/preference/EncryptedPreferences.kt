@@ -20,12 +20,13 @@ object EncryptedPreferences {
     private var context: Context? = null
     private fun getCtx() = context ?: NaverIdLoginSDK.getApplicationContext()
 
-    private val masterKey: MasterKey by lazy {
-        MasterKey.Builder(getCtx())
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setUserAuthenticationRequired(false)
-            .build()
-    }
+    private val masterKey: MasterKey
+        get() {
+            return MasterKey.Builder(getCtx())
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .setUserAuthenticationRequired(false)
+                .build()
+        }
 
     private val encryptedPreferences: SharedPreferences by lazy {
         init()
@@ -36,6 +37,7 @@ object EncryptedPreferences {
         KeyStoreSharedPreferencesWorkaround(),
         AEADBadTagSharedPreferencesWorkaround(),
         GeneralSecurityPreferencesWorkaround(),
+        InvalidKeySharedPreferencesWorkaround(),
     )
 
     private fun init(): SharedPreferences {
