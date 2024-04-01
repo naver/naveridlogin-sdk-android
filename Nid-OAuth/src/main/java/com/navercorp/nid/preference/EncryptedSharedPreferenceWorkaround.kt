@@ -51,7 +51,11 @@ class KeyStoreSharedPreferencesWorkaround: EncryptedSharedPreferenceWorkaround {
         keyStore.load(null)
         keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS)
 
-        context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit().clear().apply()
+        if (Build.VERSION.SDK_INT >= AndroidVer.API_24_NOUGAT) {
+            context.deleteSharedPreferences(fileName)
+        } else {
+            context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit().clear().apply()
+        }
         return true
     }
 
@@ -110,5 +114,35 @@ class GeneralSecurityPreferencesWorkaround: EncryptedSharedPreferenceWorkaround 
     private fun isGeneralSecurityError(throwable: Throwable): Boolean {
         val message = throwable.toString()
         return message.contains("GeneralSecurityException")
+    }
+}
+
+class InvalidKeySharedPreferencesWorkaround: EncryptedSharedPreferenceWorkaround {
+    private val statusMap = mutableMapOf<String, Boolean>()
+
+    override fun apply(context: Context, fileName: String, throwable: Throwable): Boolean {
+        if (statusMap[fileName] == true) {
+            return false
+        }
+        if (isInvalidKeyError(throwable).not()) {
+            return false
+        }
+        statusMap[fileName] = true
+
+        val keyStore = KeyStore.getInstance("AndroidKeyStore")
+        keyStore.load(null)
+        keyStore.deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS)
+
+        if (Build.VERSION.SDK_INT >= AndroidVer.API_24_NOUGAT) {
+            context.deleteSharedPreferences(fileName)
+        } else {
+            context.getSharedPreferences(fileName, Context.MODE_PRIVATE).edit().clear().apply()
+        }
+        return true
+    }
+
+    private fun isInvalidKeyError(throwable: Throwable): Boolean {
+        val message = throwable.toString()
+        return message.contains("InvalidKeyException") or message.contains("KeyNotYetValidException")
     }
 }
