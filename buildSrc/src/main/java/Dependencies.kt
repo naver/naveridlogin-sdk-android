@@ -32,11 +32,11 @@ object Dependencies {
 
     object UnitTest {
         const val junit = "junit:junit:4.12"
-        const val androidxTestCore = "androidx.test:core:1.2.0"
-        const val androidxTestRunner = "androidx.test:runner:1.2.0"
+        const val androidxTestCore = "androidx.test:core:1.4.0"
+        const val androidxTestRunner = "androidx.test:runner:1.5.0"
         const val powerMockApi = "org.powermock:powermock-api-mockito2:2.0.2"
         const val powerMockJunit = "org.powermock:powermock-module-junit4:2.0.2"
-        const val robolectric = "org.robolectric:robolectric:4.3.1"
+        const val robolectric = "org.robolectric:robolectric:4.11.1"
         const val mockWebServer = "com.squareup.okhttp3:mockwebserver:4.9.2"
         const val mockK = "io.mockk:mockk:1.12.2"
     }

@@ -124,6 +124,8 @@ object NaverIdLoginSDK {
      * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
      */
     fun authenticate(context: Context, launcher: ActivityResultLauncher<Intent>) {
+        init(context)
+
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return
@@ -148,6 +150,8 @@ object NaverIdLoginSDK {
      * @param callback 결과값을 받을 콜백
      */
     fun authenticate(context: Context, callback: OAuthLoginCallback) {
+        init(context)
+
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return
@@ -170,6 +174,8 @@ object NaverIdLoginSDK {
      * @param launcher OAuth 인증을 실행할 ActivityResultLauncher
      */
     fun reagreeAuthenticate(context: Context, launcher: ActivityResultLauncher<Intent>) {
+        init(context)
+
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return
@@ -192,6 +198,8 @@ object NaverIdLoginSDK {
      * @param callback 결과값을 받을 콜백
      */
     fun reagreeAuthenticate(context: Context, callback: OAuthLoginCallback) {
+        init(context)
+
         if (getState() == NidOAuthLoginState.NEED_INIT) {
             Toast.makeText(context.applicationContext, "SDK 초기화가 필요합니다.", Toast.LENGTH_SHORT).show()
             return

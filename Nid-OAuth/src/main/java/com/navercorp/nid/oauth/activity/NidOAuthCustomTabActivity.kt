@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.log.NidLog
 import com.navercorp.nid.oauth.NidOAuthErrorCode
@@ -119,9 +118,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     private fun returnResult(data: Intent) {
         data.action = ACTION_NAVER_CUSTOM_TAB
 
-        val instance = LocalBroadcastManager.getInstance(this)
-        instance.sendBroadcast(data)
-        setResult(RESULT_CANCELED)
+        setResult(RESULT_OK, data)
         finish()
     }
 

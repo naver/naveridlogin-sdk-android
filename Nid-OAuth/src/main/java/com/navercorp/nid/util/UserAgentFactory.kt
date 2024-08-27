@@ -52,7 +52,11 @@ object UserAgentFactory {
             )
             var appId: String = ""
             packageInfo.applicationInfo.loadDescription(packageManger)?.let {
-                appId = ",appId:${it}"
+                appId = if (it.matches(Regex("^[a-zA-Z0-9]*\$"))) {
+                    ",appId:${it}"
+                } else {
+                    ""
+                }
             }
 
             val versionCode = if (Build.VERSION.SDK_INT >= AndroidVer.API_28_PIE) {

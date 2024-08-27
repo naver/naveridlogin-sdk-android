@@ -258,3 +258,9 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 # End of https://www.gitignore.io/api/osx,java,linux,gradle,android,windows,androidstudio
+
+# SDK Console
+/Nid-OAuth/src/main/resources/META-INF/com/navercorp/nid/oauth/verification.properties
+
+# Test Code
+Nid-OAuth/src/test/

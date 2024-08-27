@@ -3,14 +3,14 @@ object Configurations {
     const val kotlinVersion = "1.6.21"
 
     /* Module */
-    const val compileSdkVersion = 33
+    const val compileSdkVersion = 34
     const val buildToolsVersion = "30.0.2"
-    const val targetSdkVersion = 33
+    const val targetSdkVersion = 34
     const val minSdkVersion = 21
 
     /* Version */
-    const val moduleVersionName = "5.9.1"
-    const val moduleVersionCode = 5_09_01
+    const val moduleVersionName = "5.10.0"
+    const val moduleVersionCode = 5_10_00
 
     /* Project ClassPath */
     object Plugins {

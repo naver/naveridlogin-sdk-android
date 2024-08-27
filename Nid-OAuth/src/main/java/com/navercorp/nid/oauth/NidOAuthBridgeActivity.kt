@@ -2,16 +2,14 @@ package com.navercorp.nid.oauth
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.NaverIdLoginSDK.behavior
 import com.navercorp.nid.log.NidLog
@@ -39,8 +37,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "NidOAuthBridgeActivity"
-        private const val REQUEST_CODE_LOGIN = 100
-        const val CUSTOM_TABS_LOGIN = -1
     }
 
     private val viewModel by viewModels<NidOAuthBridgeViewModel>()
@@ -50,6 +46,43 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     }
 
     private var authType: String? = null
+
+    private val naverappLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        viewModel.isNotForcedFinish()
+
+        requestAccessTokenWithData(result.data)
+    }
+
+    private val customTabLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        viewModel.isNotForcedFinish()
+
+        requestAccessTokenWithData(result.data)
+    }
+
+    private fun requestAccessTokenWithData(data: Intent?) {
+        if (data == null) {
+            finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
+            return
+        }
+
+        val state = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_STATE)
+        val code = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_CODE)
+        val errorCode = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
+        val errorDescription = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION)
+
+        NidOAuthPreferencesManager.apply {
+            this.code = code
+            this.state = state
+            this.errorCode = errorCode
+            this.errorDescription = errorDescription
+        }
+
+        if (code.isNullOrEmpty()) {
+            finishWithErrorResult(data)
+        } else {
+            NidOAuthLogin().accessToken(this, NaverIdLoginSDK.oauthLoginCallback)
+        }
+    }
 
     private fun initData(): Boolean {
 
@@ -144,12 +177,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         viewModel.setIsRotated(true)
     }
 
-    private var broadcastReceiver: BroadcastReceiver? = null
-
-    fun setBroadcastReceiver(receiver: BroadcastReceiver) {
-        broadcastReceiver = receiver
-    }
-
     override fun onDestroy() {
         super.onDestroy()
 
@@ -161,19 +188,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
             NaverIdLoginSDK.oauthLoginCallback?.onError(-1, "OAuthLoginActivity is destroyed.")
             setResult(RESULT_CANCELED)
-        }
-
-        broadcastReceiver?.let { receiver ->
-            runCatching {
-                val broadcastManager = LocalBroadcastManager.getInstance(this@NidOAuthBridgeActivity)
-                broadcastManager.unregisterReceiver(receiver)
-            }.onFailure { t ->
-                if (t is IllegalArgumentException) {
-                    // 등록되어 있지 않은 Receiver
-                }
-            }.also {
-                broadcastReceiver = null
-            }
         }
     }
 
@@ -243,7 +257,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
                 false
             }
         } else {
-            startActivityForResult(intent, REQUEST_CODE_LOGIN)
+            naverappLauncher.launch(intent)
             true
         }
     }
@@ -261,7 +275,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         return if (intent == null) {
             false
         } else {
-            startActivityForResult(intent, CUSTOM_TABS_LOGIN)
+            customTabLauncher.launch(intent)
             true
         }
     }
@@ -315,40 +329,5 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         NaverIdLoginSDK.oauthLoginCallback?.onError(-1, errorDescription)
         setResult(RESULT_CANCELED, intent)
         finish()
-    }
-
-    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        NidLog.d(TAG, "called onActivityResult()")
-        viewModel.isNotForcedFinish()
-
-        if (requestCode == CUSTOM_TABS_LOGIN && resultCode == RESULT_CANCELED) {
-            NidLog.d(TAG, "activity call by customtab")
-            return
-        }
-
-        if (data == null) {
-            finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
-            return
-        }
-
-        val state = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_STATE)
-        val code = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_CODE)
-        val errorCode = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
-        val errorDescription = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION)
-
-        NidOAuthPreferencesManager.apply {
-            this.code = code
-            this.state = state
-            this.errorCode = errorCode
-            this.errorDescription = errorDescription
-        }
-
-        if (code.isNullOrEmpty()) {
-            finishWithErrorResult(data)
-        } else {
-            NidOAuthLogin().accessToken(this, NaverIdLoginSDK.oauthLoginCallback)
-        }
     }
 }
