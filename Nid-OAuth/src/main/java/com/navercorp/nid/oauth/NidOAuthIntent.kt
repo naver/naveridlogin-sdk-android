@@ -1,13 +1,11 @@
 package com.navercorp.nid.oauth
 
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.provider.Settings
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity
 import com.navercorp.nid.util.NidApplicationUtil
@@ -125,30 +123,6 @@ class NidOAuthIntent {
             if (NidApplicationUtil.isNotCustomTabsAvailable(context)) {
                 return null
             }
-
-            val listener = { intent: Intent? ->
-                if (intent == null) {
-                    val newIntent = Intent()
-                    newIntent.putExtra(OAUTH_RESULT_ERROR_CODE, NidOAuthErrorCode.CLIENT_USER_CANCEL.code)
-                    newIntent.putExtra(OAUTH_RESULT_ERROR_DESCRIPTION, NidOAuthErrorCode.CLIENT_USER_CANCEL.description)
-                    (context as? NidOAuthBridgeActivity)?.onActivityResult(NidOAuthBridgeActivity.CUSTOM_TABS_LOGIN, Activity.RESULT_OK, newIntent)
-                } else {
-                    (context as? NidOAuthBridgeActivity)?.onActivityResult(NidOAuthBridgeActivity.CUSTOM_TABS_LOGIN, Activity.RESULT_OK, intent)
-                }
-            }
-
-            val instance = LocalBroadcastManager.getInstance(context)
-
-            val broadcastReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent?) {
-                    listener(intent)
-                    instance.unregisterReceiver(this)
-                }
-            }
-
-            (context as? NidOAuthBridgeActivity)?.setBroadcastReceiver(broadcastReceiver)
-
-            instance.registerReceiver(broadcastReceiver, IntentFilter(NidOAuthCustomTabActivity.ACTION_NAVER_CUSTOM_TAB))
 
             return Intent(context, NidOAuthCustomTabActivity::class.java).apply {
                 putExtra(OAUTH_REQUEST_CLIENT_ID, clientId)
