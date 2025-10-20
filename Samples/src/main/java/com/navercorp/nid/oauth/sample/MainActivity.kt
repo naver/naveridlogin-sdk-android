@@ -11,17 +11,15 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.oauth.OAuthLoginCallback
-import com.navercorp.nid.oauth.NidOAuthBehavior
-import com.navercorp.nid.oauth.NidOAuthLogin
+import com.navercorp.nid.NidOAuth
+import com.navercorp.nid.oauth.domain.enum.LoginBehavior
 import com.navercorp.nid.oauth.sample.databinding.ActivityMainBinding
-import com.navercorp.nid.profile.NidProfileCallback
-import com.navercorp.nid.profile.data.NidProfileMap
-import com.navercorp.nid.profile.data.NidProfileResponse
+import com.navercorp.nid.oauth.util.NidOAuthCallback
+import com.navercorp.nid.profile.domain.vo.NidProfile
+import com.navercorp.nid.profile.domain.vo.NidProfileMap
+import com.navercorp.nid.profile.util.NidProfileCallback
 
 class MainActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var context: Context
@@ -38,8 +36,8 @@ class MainActivity : AppCompatActivity() {
             }
             RESULT_CANCELED -> {
                 // 실패 or 에러
-                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                val errorCode = NidOAuth.getLastErrorCode().code
+                val errorDescription = NidOAuth.getLastErrorDescription()
                 Toast.makeText(context, "errorCode:$errorCode, errorDesc:$errorDescription", Toast.LENGTH_SHORT).show()
             }
         }
@@ -57,151 +55,90 @@ class MainActivity : AppCompatActivity() {
     private fun init() {
         context = this
         // Initialize NAVER id login SDK
-        NaverIdLoginSDK.apply {
-            showDevelopersLog(true)
+        NidOAuth.apply {
+            setLogEnabled(true)
             initialize(context, clientId, clientSecret, clientName)
             isShowMarketLink = true
             isShowBottomTab = true
         }
 
-        binding.buttonOAuthLoginImg.setOAuthLogin(object : OAuthLoginCallback {
+        // oauth 로그인 콜백 선언
+        val nidOAuthCallback = object : NidOAuthCallback {
             override fun onSuccess() {
                 updateView()
             }
 
-            override fun onFailure(httpStatus: Int, message: String) {
-                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+            override fun onFailure(errorCode: String, errorDesc: String) {
                 Toast.makeText(
                     context,
-                    "errorCode:$errorCode, errorDesc:$errorDescription",
+                    "errorCode:$errorCode, errorDesc:$errorDesc",
                     Toast.LENGTH_SHORT
                 ).show()
+                updateView()
             }
+        }
 
-            override fun onError(errorCode: Int, message: String) {
-                onFailure(errorCode, message)
-            }
-
-        })
+        binding.buttonOAuthLoginImg.setOAuthLogin(nidOAuthCallback)
 
         // 로그인 Launcher
         binding.loginLauncher.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.authenticate(context, launcher)
+            NidOAuth.behavior = LoginBehavior.DEFAULT
+            NidOAuth.requestLogin(context, launcher)
         }
 
         // 로그인 Callback
         binding.loginCallback.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.authenticate(context, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-            })
+            NidOAuth.behavior = LoginBehavior.DEFAULT
+            NidOAuth.requestLogin(
+                context = this,
+                callback = nidOAuthCallback,
+            )
         }
 
         // 로그아웃
         binding.logout.setOnClickListener {
-            NaverIdLoginSDK.logout()
-            updateView()
+            NidOAuth.logout(nidOAuthCallback)
         }
 
         // 연동 끊기
         binding.deleteToken.setOnClickListener {
-            NidOAuthLogin().callDeleteTokenApi(object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    updateView()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-            })
+            NidOAuth.disconnect(nidOAuthCallback)
         }
 
         // 토큰 갱신
         binding.refreshToken.setOnClickListener {
-            NidOAuthLogin().callRefreshAccessTokenApi(object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    updateView()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-
-            })
+            NidOAuth.requestLogin(
+                context = this,
+                callback = nidOAuthCallback,
+            )
         }
 
         // Api 호출
         binding.profileApi.setOnClickListener {
-            NidOAuthLogin().callProfileApi(object : NidProfileCallback<NidProfileResponse> {
-                override fun onSuccess(response: NidProfileResponse) {
+            NidOAuth.getUserProfile(object : NidProfileCallback<NidProfile> {
+                override fun onSuccess(result: NidProfile) {
                     Toast.makeText(
                         context,
-                        "$response",
+                        "$result",
                         Toast.LENGTH_SHORT
                     ).show()
-                    binding.tvApiResult.text = response.toString()
+                    binding.tvApiResult.text = result.toString()
                 }
 
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                override fun onFailure(errorCode: String, errorDesc: String) {
                     Toast.makeText(
                         context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
+                        "errorCode:$errorCode, errorDesc:$errorDesc",
                         Toast.LENGTH_SHORT
                     ).show()
                     binding.tvApiResult.text = ""
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
                 }
             })
         }
 
         // 프로필 Map 호출
         binding.profileMapApi.setOnClickListener {
-            NidOAuthLogin().getProfileMap(object : NidProfileCallback<NidProfileMap> {
+            NidOAuth.getUserProfileMap(object : NidProfileCallback<NidProfileMap> {
                 override fun onSuccess(result: NidProfileMap) {
                     Toast.makeText(
                         context,
@@ -211,129 +148,48 @@ class MainActivity : AppCompatActivity() {
                     binding.tvApiResult.text = result.toString()
                 }
 
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                override fun onFailure(errorCode: String, errorDesc: String) {
                     Toast.makeText(
                         context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
+                        "errorCode:$errorCode, errorDesc:$errorDesc",
                         Toast.LENGTH_SHORT
                     ).show()
                     binding.tvApiResult.text = ""
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
                 }
             })
         }
 
         // 네이버앱 로그인 (Callback)
         binding.loginWithNaverapp.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.NAVERAPP
-//            NaverIdLoginSDK.naverappIntentFlag = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK  // naverappIntent 생성 시 flag 추가
-            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-
-            })
+            NidOAuth.behavior = LoginBehavior.NAVERAPP
+            NidOAuth.requestLogin(
+                context = this,
+                callback = nidOAuthCallback,
+            )
         }
 
         // 커스텀탭 로그인 Callback
         binding.loginWithCustomtabs.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.CUSTOMTABS
-//            OAuthLogin.getInstance().setCustomTabReAuth(false) // 무조건 재인증시 true
-            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-
-            })
-        }
-
-        // 웹뷰 로그인
-        binding.loginWithWebView.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.WEBVIEW
-            NaverIdLoginSDK.authenticate(this, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-
-            })
+            NidOAuth.behavior = LoginBehavior.CUSTOMTABS
+            NidOAuth.requestLogin(
+                context = this,
+                callback = nidOAuthCallback,
+            )
         }
 
         // 재동의 로그인 Launcher
         binding.reagreeLoginLauncher.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.reagreeAuthenticate(context, launcher)
+            NidOAuth.behavior = LoginBehavior.DEFAULT
+            NidOAuth.repromptPermissions(context, launcher)
         }
 
         // 재동의 로그인 Callback
         binding.reagreeLoginCallback.setOnClickListener {
-            NaverIdLoginSDK.behavior = NidOAuthBehavior.DEFAULT
-            NaverIdLoginSDK.reagreeAuthenticate(context, object : OAuthLoginCallback {
-                override fun onSuccess() {
-                    updateView()
-                }
-
-                override fun onFailure(httpStatus: Int, message: String) {
-                    val errorCode = NaverIdLoginSDK.getLastErrorCode().code
-                    val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-                    Toast.makeText(
-                        context,
-                        "errorCode:$errorCode, errorDesc:$errorDescription",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-
-                override fun onError(errorCode: Int, message: String) {
-                    onFailure(errorCode, message)
-                }
-
-            })
+            NidOAuth.behavior = LoginBehavior.DEFAULT
+            NidOAuth.repromptPermissions(
+                context = this,
+                callback = nidOAuthCallback,
+            )
         }
 
         // ClientSpinner
@@ -377,7 +233,7 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
                 updateUserData()
-                NaverIdLoginSDK.initialize(context, clientId, clientSecret, clientName)
+                NidOAuth.initialize(context, clientId, clientSecret, clientName)
             }
 
             override fun onNothingSelected(parents: AdapterView<*>?) {
@@ -392,7 +248,7 @@ class MainActivity : AppCompatActivity() {
             clientSecret = binding.oauthClientsecret.text.toString()
             clientName = binding.oauthClientname.text.toString()
 
-            NaverIdLoginSDK.initialize(context, clientId, clientSecret, clientName)
+            NidOAuth.initialize(context, clientId, clientSecret, clientName)
 
             updateUserData()
 
@@ -402,11 +258,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateView() {
-        binding.tvAccessToken.text = NaverIdLoginSDK.getAccessToken()
-        binding.tvRefreshToken.text = NaverIdLoginSDK.getRefreshToken()
-        binding.tvExpires.text = NaverIdLoginSDK.getExpiresAt().toString()
-        binding.tvType.text = NaverIdLoginSDK.getTokenType()
-        binding.tvState.text = NaverIdLoginSDK.getState().toString()
+        binding.tvAccessToken.text = NidOAuth.getAccessToken()
+        binding.tvRefreshToken.text = NidOAuth.getRefreshToken()
+        binding.tvExpires.text = NidOAuth.getExpiresAt().toString()
+        binding.tvType.text = NidOAuth.getTokenType()
+        binding.tvState.text = NidOAuth.getState().toString()
     }
 
     private fun updateUserData() {

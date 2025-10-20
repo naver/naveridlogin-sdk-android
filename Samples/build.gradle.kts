@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -5,7 +7,6 @@ plugins {
 
 android {
     compileSdk = Configurations.compileSdkVersion
-    buildToolsVersion = Configurations.buildToolsVersion
 
     defaultConfig {
         applicationId = "com.navercorp.nid.oauth.sample"
@@ -33,28 +34,31 @@ android {
         sourceCompatibility(JavaVersion.VERSION_1_8)
         targetCompatibility(JavaVersion.VERSION_1_8)
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
+
     lint.abortOnError = false
     lint.checkReleaseBuilds = false
 
     buildFeatures {
         viewBinding = true
     }
+    namespace = "com.navercorp.nid.oauth.sample"
 }
 
 dependencies {
     /* 네아로 SDK from Project */
-    implementation(project(":Nid-OAuth"))
+    debugImplementation(project(":Nid-OAuth"))
+    releaseImplementation("com.navercorp.nid:oauth:5.11.0")
 
     Dependencies.Kotlin.run {
         implementation(stdLib)
         implementation(coroutines)
     }
-
-    /* 네아로 SDK from Maven */
-//    implementation 'com.naver.nid:naveridlogin-android-sdk:4.2.6'
 
     /* leakCanary */
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.9.1")

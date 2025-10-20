@@ -89,7 +89,7 @@
                 style="@style/Button.Menu"
                 android:text="위 값으로 모듈 설정" />
 
-            <com.navercorp.nid.oauth.view.NidOAuthLoginButton
+            <com.navercorp.nid.oauth.view.NidLoginButton
                 android:id="@+id/buttonOAuthLoginImg"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp" />
@@ -171,15 +171,6 @@
                 android:layout_margin="2dp"
                 android:layout_gravity="center"
                 android:text="커스텀탭 로그인"/>
-
-            <Button
-                android:id="@+id/loginWithWebView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="2dp"
-                android:layout_gravity="center"
-                android:text="웹뷰 로그인"/>
 
         </LinearLayout>
 

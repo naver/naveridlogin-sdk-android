@@ -24,17 +24,19 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# 난독화 이슈 해결
+# Tink 라이브러리 관련
+-dontwarn com.google.errorprone.annotations.CanIgnoreReturnValue
+-dontwarn com.google.errorprone.annotations.CheckReturnValue
+-dontwarn com.google.errorprone.annotations.Immutable
+-dontwarn com.google.errorprone.annotations.RestrictedApi
 
--keep public class com.nhn.android.naverlogin.OAuthLogin$* {
-    public *;
-}
--keep public class com.nhn.android.naverlogin.OAuthLogin {
-    public *;
-}
+# conscrypt 관련
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
 
--keep public class com.navercorp.nid.oauth.view.NidOAuthLoginButton$* {
-    public *;
-}
--keep public class com.navercorp.nid.oauth.view.NidOAuthLoginButton {
-    public *;
-}
+# OkHttp3 + OpenJSSE 관련
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
