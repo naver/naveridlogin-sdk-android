@@ -22,7 +22,6 @@ object Dependencies {
     object HttpClient {
         const val retrofit = "com.squareup.retrofit2:retrofit:2.9.0"
         const val converter = "com.squareup.retrofit2:converter-gson:2.9.0"
-        //        const val converter = "com.squareup.retrofit2:converter-moshi:2.9.0"
         const val moshi = "com.squareup.moshi:moshi-kotlin:1.15.2"
         const val httpInterceptor = "com.squareup.okhttp3:logging-interceptor:4.2.1"
     }
