@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Nid.Theme.AppCompat.DayNight" parent="Theme.AppCompat.DayNight">
+        <!-- No edge to edge -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <!-- Customize your theme here. -->
+    </style>
+</resources>

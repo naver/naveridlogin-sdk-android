@@ -1,8 +1,3 @@
-plugins {
-    // // jcenter upload from https://github.com/bintray/gradle-bintray-plugin#readme
-    id("com.jfrog.bintray") version "1.8.5"
-}
-
 buildscript {
     repositories {
         google()
@@ -15,8 +10,9 @@ buildscript {
     }
 }
 
-allprojects {
+subprojects {
     repositories {
+        mavenLocal()
         google()
         mavenCentral()
     }

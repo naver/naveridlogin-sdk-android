@@ -1,16 +1,18 @@
 package com.navercorp.nid.oauth.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.log.NidLog
-import com.navercorp.nid.oauth.NidOAuthErrorCode
-import com.navercorp.nid.oauth.NidOAuthIntent
-import com.navercorp.nid.oauth.NidOAuthQuery
-import kotlinx.coroutines.*
+import androidx.core.net.toUri
+import androidx.lifecycle.lifecycleScope
+import com.navercorp.nid.NidOAuth
+import com.navercorp.nid.core.data.errorcode.NidOAuthErrorCode
+import com.navercorp.nid.core.log.NidLog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 class NidOAuthCustomTabActivity : AppCompatActivity() {
@@ -25,11 +27,11 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     private var isCustomTabOpen = false
     private var isCalledNewIntent = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
         NidLog.d(TAG, "called onCreate()")
-
-        NaverIdLoginSDK.init(this)
     }
 
     override fun onResume() {
@@ -47,23 +49,26 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         openCustomTab()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(
+        outState: Bundle
+    ) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(SAVE_CUSTOM_TAB_OPEN, isCustomTabOpen)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+    override fun onRestoreInstanceState(
+        savedInstanceState: Bundle
+    ) {
         super.onRestoreInstanceState(savedInstanceState)
         isCustomTabOpen = savedInstanceState.getBoolean(SAVE_CUSTOM_TAB_OPEN, false)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(
+        intent: Intent
+    ) {
         super.onNewIntent(intent)
         isCalledNewIntent = true
 
-        if (intent == null) {
-            return
-        }
         val code = intent.getStringExtra("code")
         val state = intent.getStringExtra("state")
         val error = intent.getStringExtra("error")
@@ -79,23 +84,30 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     private fun openCustomTab() {
         isCustomTabOpen = true
 
-        if (NaverIdLoginSDK.isInitialized().not()) {
+        if (NidOAuth.isInitialized().not()) {
             responseError(null, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.code, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.description)
         }
 
-        val oauthUrl = NidOAuthQuery.Builder()
-            .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
-            .setAuthType(intent.getStringExtra("auth_type"))
-            .build()
+        lifecycleScope.launch {
+            val oauthUrl = NidOAuthQuery.Builder()
+                .setMethod(NidOAuthQuery.Method.CUSTOM_TABS)
+                .setAuthType(intent.getStringExtra("auth_type"))
+                .build()
 
-        val customTabsIntent = CustomTabsIntent.Builder()
-            .setShowTitle(true)
-            .build()
+            val customTabsIntent = CustomTabsIntent.Builder()
+                .setShowTitle(true)
+                .build()
 
-        customTabsIntent.launchUrl(this@NidOAuthCustomTabActivity, Uri.parse(oauthUrl))
+            customTabsIntent.launchUrl(this@NidOAuthCustomTabActivity, oauthUrl.toUri())
+        }
     }
 
-    private fun responseResult(state: String?, code: String?, error: String?, errorDescription: String?) {
+    private fun responseResult(
+        state: String?,
+        code: String?,
+        error: String?,
+        errorDescription: String?,
+    ) {
         val intent = Intent().apply {
             putExtra(NidOAuthIntent.OAUTH_RESULT_STATE, state)
             putExtra(NidOAuthIntent.OAUTH_RESULT_CODE, code)
@@ -106,7 +118,11 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
     }
 
 
-    private fun responseError(state: String?, error: String?, errorDescription: String?) {
+    private fun responseError(
+        state: String?,
+        error: String?,
+        errorDescription: String?,
+    ) {
         val intent =  Intent().apply {
             putExtra(NidOAuthIntent.OAUTH_RESULT_STATE, state)
             putExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE, error)
@@ -115,14 +131,18 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         returnResult(intent)
     }
 
-    private fun returnResult(data: Intent) {
+    private fun returnResult(
+        data: Intent,
+    ) {
         data.action = ACTION_NAVER_CUSTOM_TAB
 
         setResult(RESULT_OK, data)
         finish()
     }
 
-    private fun getDecodedString(str: String?): String? {
+    private fun getDecodedString(
+        str: String?,
+    ): String? {
         NidLog.d(TAG, "called getDecodedString()")
         NidLog.d(TAG, "getDecodedString() | str : $str")
         if (str.isNullOrEmpty()) {

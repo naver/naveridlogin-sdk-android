@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-    package="com.nhn.android.oauth" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,24 +15,10 @@
     </queries>
 
     <application>
-
-<!--        <activity-->
-<!--            android:name="com.nhn.android.naverlogin.ui.OAuthLoginActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:theme="@style/Theme.AppCompat.Light.Dialog" />-->
-
-
         <activity
-            android:name="com.navercorp.nid.oauth.NidOAuthBridgeActivity"
+            android:name="com.navercorp.nid.oauth.activity.NidOAuthBridgeActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
-
-<!--        <activity-->
-<!--            android:name="com.navercorp.nid.oauth.activity.NidOAuthWebViewActivity"-->
-<!--            android:configChanges="orientation|screenSize"-->
-<!--            android:screenOrientation="behind"-->
-<!--            android:label="OAuth2.0 by WebView"-->
-<!--            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar"/>-->
 
         <activity
             android:name="com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity"
@@ -56,7 +39,6 @@
                     android:path="/"/>
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

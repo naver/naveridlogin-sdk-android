@@ -6,15 +6,19 @@ import android.util.AttributeSet
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.widget.AppCompatImageView
 import com.navercorp.nid.NaverIdLoginSDK
-import com.navercorp.nid.oauth.OAuthLoginCallback
+import com.navercorp.nid.oauth.util.NidOAuthCallback
 import com.nhn.android.oauth.R
 
+@Deprecated(
+    message = "This will be removed from v6.1.0. Use NidLoginButton instead.",
+    replaceWith = ReplaceWith("NidLoginButton"),
+)
 class NidOAuthLoginButton: AppCompatImageView {
 
     companion object {
         const val TAG = "NidOAuthLoginButton"
         var launcher: ActivityResultLauncher<Intent>? = null
-        var oauthLoginCallback: OAuthLoginCallback? = null
+        var oauthLoginCallback: NidOAuthCallback? = null
     }
 
     constructor(context: Context): super(context) {
@@ -44,13 +48,20 @@ class NidOAuthLoginButton: AppCompatImageView {
         }
     }
 
+    @Deprecated(
+        message = "This method will be removed from v6.1.0. Use NidLoginButton.setOAuthLogin(launcher) instead.",
+        replaceWith = ReplaceWith("NidLoginButton.setOAuthLogin(launcher)"),
+    )
     fun setOAuthLogin(launcher: ActivityResultLauncher<Intent>) {
         Companion.launcher = launcher
     }
 
-    fun setOAuthLogin(oauthLoginCallback: OAuthLoginCallback) {
+    @Deprecated(
+        message = "This method will be removed from v6.1.0. Use NidLoginButton.setOAuthLogin(oauthLoginCallback) instead.",
+        replaceWith = ReplaceWith("NidLoginButton.setOAuthLogin(oauthLoginCallback)"),
+    )
+    fun setOAuthLogin(oauthLoginCallback: NidOAuthCallback) {
         Companion.oauthLoginCallback = oauthLoginCallback
     }
 
 }
-

@@ -13,17 +13,17 @@ features to your application.
 
 **How to use NaverIdLogin SDK for Android? <small>(korean)</small>**
 - [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/%EC%B5%9C%EC%8B%A0%EB%B2%84%EC%A0%84-%EA%B0%80%EC%9D%B4%EB%93%9C)
-- https://developers.naver.com/docs/login/android
+- [Naver-Id-Login Android SDK Tutorial Doc](https://developers.naver.com/docs/login/android)
 
 **Need help?**
-- http://forum.developers.naver.com/c/5-category
+- [Naver Developers Forum](https://developers.naver.com/forum/list?cat=0a70f848-618d-1da5-8161-8dfdae5a0004)
 
 ## Dependent libraries
 
 Naver Login for Android uses libraries below.
 
-- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
-- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
+- org.jetbrains.kotlin:kotlin-stdlib:2.1.0
+- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.0
 - androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
 - androidx.browser:browser:1.4.0
@@ -32,9 +32,11 @@ Naver Login for Android uses libraries below.
 - androidx.core:core-ktx:1.3.0
 - androidx.fragment:fragment-ktx:1.3.6
 - androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0
+- androidx.datastore:datastore-preferences:1.1.7
+- androidx.lifecycle:lifecycle-process:2.9.3
 - com.squareup.retrofit2:retrofit:2.9.0
 - com.squareup.retrofit2:converter-gson:2.9.0
-- com.squareup.moshi:moshi-kotlin:1.11.0
+- com.squareup.moshi:moshi-kotlin:1.15.2
 - com.squareup.okhttp3:logging-interceptor:4.2.1
 - com.airbnb.android:lottie:3.1.0
 
@@ -49,28 +51,30 @@ Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아�
 
 **네이버 아이디로 로그인 SDK 적용가이드**
 - [Github Wiki 가이드](https://github.com/naver/naveridlogin-sdk-android/wiki/%EC%B5%9C%EC%8B%A0%EB%B2%84%EC%A0%84-%EA%B0%80%EC%9D%B4%EB%93%9C)
-- https://developers.naver.com/docs/login/android
+- [네이버 아이디 로그인 Android SDK 튜토리얼 문서](https://developers.naver.com/docs/login/android)
 
 **네이버 아이디로 로그인 문의**
-- http://forum.developers.naver.com/c/5-category
+- [네이버 개발자 포럼](https://developers.naver.com/forum/list?cat=0a70f848-618d-1da5-8161-8dfdae5a0004)
 
 ## 사용하는 라이브러리
 
 네아로 SDK에서 사용하는 라이브러리는 다음과 같습니다.
 
-- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
-- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9
+- org.jetbrains.kotlin:kotlin-stdlib:2.1.0
+- org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.0
 - androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
 - androidx.browser:browser:1.4.0
 - androidx.constraintlayout:constraintlayout:1.1.3
 - androidx.security:security-crypto:1.1.0-alpha06
 - androidx.core:core-ktx:1.3.0
-- androidx.fragment:fragment-ktx:1.3.6 
+- androidx.fragment:fragment-ktx:1.3.6
 - androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0
+- androidx.datastore:datastore-preferences:1.1.7
+- androidx.lifecycle:lifecycle-process:2.9.3
 - com.squareup.retrofit2:retrofit:2.9.0
 - com.squareup.retrofit2:converter-gson:2.9.0
-- com.squareup.moshi:moshi-kotlin:1.11.0
+- com.squareup.moshi:moshi-kotlin:1.15.2
 - com.squareup.okhttp3:logging-interceptor:4.2.1
 - com.airbnb.android:lottie:3.1.0
 

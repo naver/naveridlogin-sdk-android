@@ -260,7 +260,8 @@ gradle-app.setting
 # End of https://www.gitignore.io/api/osx,java,linux,gradle,android,windows,androidstudio
 
 # SDK Console
-/Nid-OAuth/src/main/resources/META-INF/com/navercorp/nid/oauth/verification.properties
+Nid-OAuth/src/main/resources/META-INF/com/navercorp/nid/oauth/verification.properties
+Nid-OAuth-jdk8/src/main/resources/META-INF/com/navercorp/nid/oauth-jdk8/verification.properties
 
 # Test Code
 Nid-OAuth/src/test/

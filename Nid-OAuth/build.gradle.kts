@@ -1,17 +1,15 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.library")
-    `maven-publish`
     kotlin("android")
+    `maven-publish`
 }
 
 android {
     compileSdk = Configurations.compileSdkVersion
-    buildToolsVersion = Configurations.buildToolsVersion
-
-//    testOptions.unitTests.includeAndroidResources = true
 
     defaultConfig {
-        targetSdk = Configurations.targetSdkVersion
         minSdk = Configurations.minSdkVersion
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -23,6 +21,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            consumerProguardFiles("proguard-rules.pro")
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
         getByName("debug") {
@@ -34,17 +33,29 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
-    lint.abortOnError = false
+
+    lint {
+        abortOnError = false
+        targetSdk = Configurations.targetSdkVersion
+    }
 
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
+
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        targetSdk = Configurations.targetSdkVersion
     }
+
+    namespace = "com.nhn.android.oauth"
 }
 
 dependencies {
@@ -63,6 +74,8 @@ dependencies {
         implementation(coreKtx)
         implementation(fragmentKtx)
         implementation(lifecycleViewModel)
+        implementation(preferencesdatastore)
+        implementation(lifecycleProcess)
     }
 
     Dependencies.HttpClient.run {
@@ -92,9 +105,6 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("release") {
-                // Applies the component for the release build variant.
-                from(components.getByName("release"))
-
                 groupId = "com.navercorp.nid"
                 artifactId = "oauth"
                 version = Configurations.moduleVersionName
@@ -118,6 +128,11 @@ afterEvaluate {
                             id.set("dayeon.lee")
                             name.set("Dayeon Lee")
                             email.set("dayeon.lee@navercorp.com")
+                        }
+                        developer {
+                            id.set("yuri.mun")
+                            name.set("Yuri Mun")
+                            email.set("yu_ri.mun@navercorp.com")
                         }
                     }
 
