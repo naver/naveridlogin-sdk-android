@@ -122,7 +122,7 @@ object NidOAuth {
     /**
      * 앱의 포그라운드/백그라운드 상태에 따라 DataStore의 StateFlow 공유 시작/중지
      */
-    init {
+    fun registerProcessLifecycleObserver() {
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             // 앱이 포그라운드로 진입
             override fun onStart(owner: LifecycleOwner) {
@@ -210,6 +210,8 @@ object NidOAuth {
         _isDataInitializing.set(false)
         withContext(Dispatchers.Main) {
             initCallback?.onSuccess()
+
+            registerProcessLifecycleObserver()
         }
     }
 
@@ -274,6 +276,7 @@ object NidOAuth {
         oauthLoginCallback = null
 
         val intent = NidOAuthBridgeActivity.getIntent(context)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         launcher.launch(intent)
     }
 
