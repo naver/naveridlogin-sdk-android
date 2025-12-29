@@ -106,7 +106,7 @@ object NidOAuth {
     /**
      * Application Context
      */
-    private var applicationContext: Context? = null
+    private lateinit var applicationContext: Context
 
     private val dataInitializingMutex = Mutex()
 
@@ -118,23 +118,6 @@ object NidOAuth {
     private val _isDataInitializing = AtomicBoolean(false)
     val isDataInitializing: Boolean
         get() = _isDataInitializing.get()
-
-    /**
-     * 앱의 포그라운드/백그라운드 상태에 따라 DataStore의 StateFlow 공유 시작/중지
-     */
-    init {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
-            // 앱이 포그라운드로 진입
-            override fun onStart(owner: LifecycleOwner) {
-                NidOAuthLocalDataSource.startSharing()
-            }
-
-            // 앱이 백그라운드로 진입
-            override fun onStop(owner: LifecycleOwner) {
-                NidOAuthLocalDataSource.stopSharing()
-            }
-        })
-    }
 
     /**
      * OAuth 인증시 필요한 값들을 preference에 저장
@@ -210,7 +193,27 @@ object NidOAuth {
         _isDataInitializing.set(false)
         withContext(Dispatchers.Main) {
             initCallback?.onSuccess()
+            registerProcessLifecycleOwner()
         }
+    }
+
+    /**
+     * 앱의 포그라운드/백그라운드 상태에 따라 DataStore의 StateFlow 공유 시작/중지
+     */
+    private fun registerProcessLifecycleOwner() {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                // 앱이 포그라운드로 진입
+                override fun onStart(owner: LifecycleOwner) {
+                    NidOAuthLocalDataSource.startSharing()
+                }
+
+                // 앱이 백그라운드로 진입
+                override fun onStop(owner: LifecycleOwner) {
+                    NidOAuthLocalDataSource.stopSharing()
+                }
+            },
+        )
     }
 
     /**
@@ -218,9 +221,7 @@ object NidOAuth {
      *
      * @return SDK 초기화 여부
      */
-    fun isInitialized(): Boolean {
-        return applicationContext != null
-    }
+    fun isInitialized(): Boolean = ::applicationContext.isInitialized
 
     /**
      * Application Context 반환
@@ -229,10 +230,8 @@ object NidOAuth {
      * @throws NidOAuthException SDK가 초기화되지 않은 경우
      */
     fun getApplicationContext(): Context {
-        val context = applicationContext
-
-        if (context != null) {
-            return context
+        if (isInitialized()) {
+            return applicationContext
         } else {
             throw NidOAuthException(
                 message = "Need to call NidOAuth.initialize(context, clientId, clientSecret, clientName) first."
@@ -364,6 +363,7 @@ object NidOAuth {
      * @return 마지막 에러 설명 문자열
      */
     fun getLastErrorDescription(): String? = getOAuthInfo.getLastErrorDesc()
+
     /**
      * 특정 로그인 모드 저장
      */
@@ -404,7 +404,7 @@ object NidOAuth {
      */
     fun getState(): NidOAuthLoginState {
         // 1. SDK 초기화 여부 확인
-        if (applicationContext == null) {
+        if (isInitialized().not()) {
             return NidOAuthLoginState.NEED_INIT
         }
 
