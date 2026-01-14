@@ -26,11 +26,9 @@ import com.navercorp.nid.profile.domain.usecase.FetchUserProfile
 import com.navercorp.nid.profile.domain.vo.NidProfile
 import com.navercorp.nid.profile.domain.vo.NidProfileMap
 import com.navercorp.nid.profile.util.NidProfileCallback
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -65,18 +63,6 @@ object NidOAuth {
     private val setUpOauthInfo by lazy {
         SetUpOAuthInfo(oauthRepository)
     }
-
-    /**
-     * 에러 핸들러가 포함된 IO 스코프
-     */
-    fun createErrorHandlingIoScope(
-        errorHandle: ((Throwable) -> Unit)? = null,
-    ) = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
-        NidLog.e(TAG, "CoroutineExceptionHandler got $throwable")
-        CoroutineScope(Dispatchers.Main).launch {
-            errorHandle?.invoke(throwable)
-        }
-    })
 
     /**
      * 네이버앱에 대한 market link 팝업의 노출 여부 결정
@@ -160,40 +146,42 @@ object NidOAuth {
         clientSecret: String,
         clientName: String,
         initCallback: NidOAuthInitializingCallback?,
-    ) = createErrorHandlingIoScope(
-        errorHandle = { throwable ->
+    ) = GlobalScope.launch(Dispatchers.IO) {
+        try {
+            // 데이터 초기화 진행 세팅
+            _isDataInitializing.set(true)
+
+            // 이미 초기화된 경우, 재초기화하지 않음
+            dataInitializingMutex.withLock {
+                // 1. 데이터 마이그레이션 수행
+                // SharedPreferences/EncryptedPreferences -> DataStore
+                // 마이그레이션 실패해도 내부적으로 에러 처리, 전파 x
+                NidDataMigrationManager.migrateDataFromLegacyStores()
+
+                // 2. 데이터 초기화
+                // 마이그레이션 실패 여부와 상관없이 초기 데이터가 새롭게 저장
+                // 마이그레이션 성공할 경우 기존 데이터 유지 / 실패할 경우 다시 OAuth 인증 필요
+                setUpOauthInfo.initData(
+                    clientId = clientId,
+                    clientSecret = clientSecret,
+                    clientName = clientName,
+                    callbackUrl = context.packageName,
+                    lastErrorCode = NidOAuthErrorCode.NONE.code,
+                    lastErrorDesc = "",
+                )
+            }
+
+            // 데이터 초기화 완료 세팅
             _isDataInitializing.set(false)
-            initCallback?.onFailure(throwable as Exception)
-        }
-    ).launch {
-        // 데이터 초기화 진행 세팅
-        _isDataInitializing.set(true)
-
-        // 이미 초기화된 경우, 재초기화하지 않음
-        dataInitializingMutex.withLock {
-            // 1. 데이터 마이그레이션 수행
-            // SharedPreferences/EncryptedPreferences -> DataStore
-            // 마이그레이션 실패해도 내부적으로 에러 처리, 전파 x
-            NidDataMigrationManager.migrateDataFromLegacyStores()
-
-            // 2. 데이터 초기화
-            // 마이그레이션 실패 여부와 상관없이 초기 데이터가 새롭게 저장
-            // 마이그레이션 성공할 경우 기존 데이터 유지 / 실패할 경우 다시 OAuth 인증 필요
-            setUpOauthInfo.initData(
-                clientId = clientId,
-                clientSecret = clientSecret,
-                clientName = clientName,
-                callbackUrl = context.packageName,
-                lastErrorCode = NidOAuthErrorCode.NONE.code,
-                lastErrorDesc = "",
-            )
-        }
-
-        // 데이터 초기화 완료 세팅
-        _isDataInitializing.set(false)
-        withContext(Dispatchers.Main) {
-            initCallback?.onSuccess()
-            registerProcessLifecycleOwner()
+            withContext(Dispatchers.Main) {
+                initCallback?.onSuccess()
+                registerProcessLifecycleOwner()
+            }
+        } catch (throwable: Throwable) {
+            withContext(Dispatchers.Main) {
+                _isDataInitializing.set(false)
+                initCallback?.onFailure(throwable as Exception)
+            }
         }
     }
 
@@ -340,13 +328,17 @@ object NidOAuth {
      */
     fun logout(
         callback: NidOAuthCallback,
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        logout.invoke()
-        withContext(Dispatchers.Main) {
-            callback.onSuccess()
+    ) = GlobalScope.launch(Dispatchers.IO) {
+        try {
+            logout.invoke()
+            withContext(Dispatchers.Main) {
+                callback.onSuccess()
+            }
+        } catch (throwable: Throwable) {
+            withContext(Dispatchers.Main) {
+                val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+                callback.onFailure(executionError.code, throwable.message ?: executionError.description)
+            }
         }
     }
 
@@ -491,23 +483,27 @@ object NidOAuth {
      */
     fun disconnect(
         callback: NidOAuthCallback
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val disconnectResult = disconnect()
-        if (!disconnectResult.isDisconnectSuccess) {
-            setUpOauthInfo.setUpLastErrorInfo(
-                errorCode = disconnectResult.error.code,
-                errorDesc = disconnectResult.errorDescription
-            )
-            withContext(Dispatchers.Main) {
-                callback.onFailure(disconnectResult.error.code, disconnectResult.errorDescription)
+    ) = GlobalScope.launch(Dispatchers.IO) {
+        try {
+            val disconnectResult = disconnect()
+            if (!disconnectResult.isDisconnectSuccess) {
+                setUpOauthInfo.setUpLastErrorInfo(
+                    errorCode = disconnectResult.error.code,
+                    errorDesc = disconnectResult.errorDescription
+                )
+                withContext(Dispatchers.Main) {
+                    callback.onFailure(disconnectResult.error.code, disconnectResult.errorDescription)
+                }
+            } else {
+                logout()
+                withContext(Dispatchers.Main) {
+                    callback.onSuccess()
+                }
             }
-        } else {
-            logout()
+        } catch (throwable: Throwable) {
             withContext(Dispatchers.Main) {
-                callback.onSuccess()
+                val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+                callback.onFailure(executionError.code, throwable.message ?: executionError.description)
             }
         }
     }
@@ -519,17 +515,21 @@ object NidOAuth {
      */
     fun getUserProfile(
         callback: NidProfileCallback<NidProfile>
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val accessToken = getOAuthInfo.getAccessToken().orEmpty()
-        val profileResult = fetchUserProfile.getUserProfile(accessToken)
-        withContext(Dispatchers.Main) {
-            if (profileResult.isValid) {
-                callback.onSuccess(profileResult)
-            } else {
-                callback.onFailure(profileResult.error.code, profileResult.errorDescription)
+    ) = GlobalScope.launch(Dispatchers.IO) {
+        try {
+            val accessToken = getOAuthInfo.getAccessToken().orEmpty()
+            val profileResult = fetchUserProfile.getUserProfile(accessToken)
+            withContext(Dispatchers.Main) {
+                if (profileResult.isValid) {
+                    callback.onSuccess(profileResult)
+                } else {
+                    callback.onFailure(profileResult.error.code, profileResult.errorDescription)
+                }
+            }
+        } catch (throwable: Throwable) {
+            withContext(Dispatchers.Main) {
+                val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+                callback.onFailure(executionError.code, throwable.message ?: executionError.description)
             }
         }
     }
@@ -541,17 +541,21 @@ object NidOAuth {
      */
     fun getUserProfileMap(
         callback: NidProfileCallback<NidProfileMap>
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val accessToken = getOAuthInfo.getAccessToken().orEmpty()
-        val profileMapResult = fetchUserProfile.getUserProfileMap(accessToken)
-        withContext(Dispatchers.Main) {
-            if (profileMapResult.isValid) {
-                callback.onSuccess(profileMapResult)
-            } else {
-                callback.onFailure(profileMapResult.error.code, profileMapResult.errorDescription)
+    ) = GlobalScope.launch(Dispatchers.IO) {
+        try {
+            val accessToken = getOAuthInfo.getAccessToken().orEmpty()
+            val profileMapResult = fetchUserProfile.getUserProfileMap(accessToken)
+            withContext(Dispatchers.Main) {
+                if (profileMapResult.isValid) {
+                    callback.onSuccess(profileMapResult)
+                } else {
+                    callback.onFailure(profileMapResult.error.code, profileMapResult.errorDescription)
+                }
+            }
+        } catch (throwable: Throwable) {
+            withContext(Dispatchers.Main) {
+                val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+                callback.onFailure(executionError.code, throwable.message ?: executionError.description)
             }
         }
     }
