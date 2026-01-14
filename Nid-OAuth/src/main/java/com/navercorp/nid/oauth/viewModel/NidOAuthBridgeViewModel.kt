@@ -10,9 +10,8 @@ import com.navercorp.nid.oauth.domain.usecase.Login
 import com.navercorp.nid.oauth.domain.vo.LoginInfo
 import com.navercorp.nid.oauth.domain.vo.Token
 import com.navercorp.nid.oauth.util.NidOAuthCallback
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,16 +21,6 @@ class NidOAuthBridgeViewModel : ViewModel() {
             oauthRepository = NidServiceLocator.provideOAuthRepository()
         )
     }
-
-    /**
-     * 에러 핸들러가 포함된 IO 스코프
-     */
-    fun createErrorHandlingIoScope(
-        errorHandle: ((Throwable) -> Unit)? = null,
-    ) = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
-        NidLog.e(TAG, "CoroutineExceptionHandler got $throwable")
-        errorHandle?.invoke(throwable)
-    })
 
     /**
      * ProgressBar 표시 여부 LiveData
@@ -97,19 +86,20 @@ class NidOAuthBridgeViewModel : ViewModel() {
             }
         }
 
-        createErrorHandlingIoScope(
-            errorHandle = { throwable ->
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                _isShowProgress.postValue(true)
+                val oauthToken = login.refreshToken()
+
+                if (oauthToken.isOAuthSuccess) {
+                    oauthLoginCallback.onSuccess()
+                } else {
+                    oauthLoginCallback.onFailure(oauthToken.error.code, oauthToken.errorDescription)
+                }
+            } catch (throwable: Throwable) {
+                NidLog.e(TAG, "CoroutineExceptionHandler got $throwable")
                 val unknownError = NidOAuthErrorCode.ERROR_NO_CATAGORIZED
                 oauthLoginCallback.onFailure(unknownError.code, unknownError.description)
-            }
-        ).launch {
-            _isShowProgress.postValue(true)
-            val oauthToken = login.refreshToken()
-
-            if (oauthToken.isOAuthSuccess) {
-                oauthLoginCallback.onSuccess()
-            } else {
-                oauthLoginCallback.onFailure(oauthToken.error.code, oauthToken.errorDescription)
             }
         }
     }
