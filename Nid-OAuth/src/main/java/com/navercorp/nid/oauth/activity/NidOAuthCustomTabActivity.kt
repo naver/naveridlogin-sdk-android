@@ -9,8 +9,8 @@ import androidx.lifecycle.lifecycleScope
 import com.navercorp.nid.NidOAuth
 import com.navercorp.nid.core.data.errorcode.NidOAuthErrorCode
 import com.navercorp.nid.core.log.NidLog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -38,7 +38,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         super.onResume()
 
         if (isCustomTabOpen) {
-            CoroutineScope(Dispatchers.Main).launch {
+            GlobalScope.launch(Dispatchers.Main) {
                 delay(500)
                 if (!isCalledNewIntent) {
                     responseError(null, NidOAuthErrorCode.CLIENT_USER_CANCEL.code, NidOAuthErrorCode.CLIENT_USER_CANCEL.description)
