@@ -309,8 +309,8 @@ object NidOAuth {
 
         oauthLoginCallback = null
 
-        val repromptAuthTYpe = "reprompt"
-        val intent = NidOAuthBridgeActivity.getIntent(context, repromptAuthTYpe)
+        val repromptAuthType = "reprompt"
+        val intent = NidOAuthBridgeActivity.getIntent(context, repromptAuthType)
         launcher.launch(intent)
     }
 
