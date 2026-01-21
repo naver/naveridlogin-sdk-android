@@ -229,10 +229,10 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             return@launch
         }
 
-        val state = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_STATE)
-        val code = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_CODE)
-        val errorCode = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
-        val errorDescription = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION)
+        val state = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_STATE)
+        val code = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_CODE)
+        val errorCode = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
+        val errorDescription = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION)
         val loginInfo = LoginInfo(
             oauthCode = code,
             oauthState = state,
@@ -311,16 +311,16 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
      */
 
     private fun finishWithErrorResult(intent: Intent) {
-        val errorCode = intent.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
-        val errorDesc = intent.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION).orEmpty()
-        oauthFinish(intent, NidOAuthErrorCode.INSTANCE.fromString(errorCode), errorDesc)
+        val errorCode = intent.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
+        val errorDesc = intent.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION).orEmpty()
+        oauthFinish(intent, NidOAuthErrorCode.fromString(errorCode), errorDesc)
     }
 
     private fun finishWithErrorResult(errCode: NidOAuthErrorCode) {
         val intent = Intent().apply {
             // TODO code 넣을때 state체크 처리해야 함.
-            putExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE, errCode.code)
-            putExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION, errCode.description)
+            putExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE, errCode.code)
+            putExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION, errCode.description)
         }
 
         oauthFinish(intent, errCode, errCode.description)
