@@ -22,8 +22,8 @@ import com.navercorp.nid.oauth.domain.vo.LoginInfo
 import com.navercorp.nid.oauth.view.NidProgressDialog
 import com.navercorp.nid.oauth.viewModel.NidOAuthBridgeViewModel
 import com.nhn.android.oauth.R
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 /**
@@ -223,7 +223,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     private fun requestLogin(
         data: Intent?,
-    ) = CoroutineScope(Dispatchers.Main).launch {
+    ) = GlobalScope.launch(Dispatchers.Main) {
         if (data == null) {
             finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
             return@launch
@@ -341,7 +341,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     private fun setUpLastErrorInfo(
         errorCode: String,
         errorDesc: String,
-    ) = CoroutineScope(Dispatchers.IO).launch {
+    ) = GlobalScope.launch(Dispatchers.IO) {
         try {
             setUpOAuthInfo.setUpLastErrorInfo(
                 errorCode = errorCode,
