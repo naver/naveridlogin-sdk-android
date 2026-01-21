@@ -223,27 +223,29 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     private fun requestLogin(
         data: Intent?,
-    ) = CoroutineScope(Dispatchers.Main).launch {
-        if (data == null) {
-            finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
-            return@launch
-        }
+    ) {
+        lifecycleScope.launch {
+            if (data == null) {
+                finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
+                return@launch
+            }
 
-        val state = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_STATE)
-        val code = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_CODE)
-        val errorCode = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
-        val errorDescription = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION)
-        val loginInfo = LoginInfo(
-            oauthCode = code,
-            oauthState = state,
-            errorCode = errorCode,
-            errorDesc = errorDescription
-        )
+            val state = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_STATE)
+            val code = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_CODE)
+            val errorCode = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
+            val errorDescription = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION)
+            val loginInfo = LoginInfo(
+                oauthCode = code,
+                oauthState = state,
+                errorCode = errorCode,
+                errorDesc = errorDescription
+            )
 
-        if (code.isNullOrEmpty()) {
-            finishWithErrorResult(data)
-        } else {
-            login(loginInfo)
+            if (code.isNullOrEmpty()) {
+                finishWithErrorResult(data)
+            } else {
+                login(loginInfo)
+            }
         }
     }
 
