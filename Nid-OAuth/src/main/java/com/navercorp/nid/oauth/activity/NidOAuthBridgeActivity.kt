@@ -298,10 +298,10 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             val errorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             setUpLastErrorInfo(
                 errorCode = errorCode.code,
-                errorDesc = "OAuthLoginActivity is destroyed."
+                errorDesc = "NidOAuthBridgeActivity is destroyed."
             )
 
-            NidOAuth.oauthLoginCallback?.onFailure(errorCode.code, "OAuthLoginActivity is destroyed.")
+            NidOAuth.oauthLoginCallback?.onFailure(errorCode.code, "NidOAuthBridgeActivity is destroyed.")
             setResult(RESULT_CANCELED)
         }
     }
