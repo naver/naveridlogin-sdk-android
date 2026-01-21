@@ -132,7 +132,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 각 상황별로 네이버 로그인을 진행할 액티비티를 실행
-     * @param mOAuthLoginData 네아로 메타 정보
      */
     private suspend fun startLoginActivity() {
         NidLog.d(TAG, "startLoginActivity()")
@@ -169,7 +168,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 네이버 앱으로 로그인 시도
-     * @param loginData 네아로 메타 정보
      * @return 실행 여부
      */
     private suspend fun tryOAuthByNaverapp(): Boolean {
@@ -200,7 +198,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 커스텀 탭으로 로그인 시도
-     * @param loginData 네아로 메타 정보
      * @return 실행 여부
      */
     private suspend fun tryOAuthByCustomTab(): Boolean {
