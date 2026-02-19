@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
     `maven-publish`
 }
 
@@ -21,8 +21,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
-            consumerProguardFiles("proguard-rules.pro")
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            consumerProguardFiles("proguard-rules.pro", "proguard-rules-consumer.pro")
         }
         getByName("debug") {
             isMinifyEnabled = false
@@ -59,46 +58,35 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 
-    Dependencies.Kotlin.run {
-        implementation(stdLib)
-        implementation(coroutines)
-    }
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.legacy.support.core.utils)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.process)
 
-    Dependencies.AndroidX.run {
-        implementation(appcompat)
-        implementation(coreUtils)
-        implementation(browser)
-        implementation(constraintLayout)
-        implementation(crypto)
-        implementation(coreKtx)
-        implementation(fragmentKtx)
-        implementation(lifecycleViewModel)
-        implementation(preferencesdatastore)
-        implementation(lifecycleProcess)
-    }
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.okhttp.logging.interceptor)
 
-    Dependencies.HttpClient.run {
-        implementation(retrofit)
-        implementation(converter)
-        implementation(moshi)
-        implementation(httpInterceptor)
-    }
+    api(libs.lottie)
 
-    Dependencies.AirBnB.run {
-        api(lottie)
-    }
-
-    Dependencies.UnitTest.run {
-        testImplementation(junit)
-        testImplementation(androidxTestCore)
-        testImplementation(androidxTestRunner)
-        testImplementation(powerMockApi)
-        testImplementation(powerMockJunit)
-        testImplementation(robolectric)
-        testImplementation(mockWebServer)
-        testImplementation(mockK)
-    }
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.runner)
+    testImplementation(libs.powermock.api.mockito2)
+    testImplementation(libs.powermock.module.junit4)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockwebserver)
+    testImplementation(libs.mockk)
 }
 
 afterEvaluate {
