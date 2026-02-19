@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.application")
-    kotlin("android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -26,7 +26,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"),"proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"))
         }
         getByName("debug") {}
     }
@@ -51,16 +51,14 @@ android {
 }
 
 dependencies {
-    /* 네아로 SDK from Project */
+    // 네아로 SDK from Project
     debugImplementation(project(":Nid-OAuth"))
-    releaseImplementation("com.navercorp.nid:oauth:5.11.1")
+    releaseImplementation("com.navercorp.nid:oauth:5.11.2")
 
-    Dependencies.Kotlin.run {
-        implementation(stdLib)
-        implementation(coroutines)
-    }
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.coroutines.android)
 
-    /* leakCanary */
+    // leakCanary
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.9.1")
 
     implementation("androidx.multidex:multidex:2.0.1")

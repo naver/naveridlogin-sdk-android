@@ -17,13 +17,13 @@
     <application>
         <activity
             android:name="com.navercorp.nid.oauth.activity.NidOAuthBridgeActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
 
         <activity
             android:name="com.navercorp.nid.oauth.activity.NidOAuthCustomTabActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:screenOrientation="behind"
             android:launchMode="singleTask"
             android:label="OAuth2.0 by Custom tabs"
@@ -39,6 +39,7 @@
                     android:path="/"/>
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
