@@ -16,24 +16,15 @@ import com.navercorp.nid.oauth.activity.NidOAuthBridgeActivity
 import com.navercorp.nid.oauth.domain.enum.LoginBehavior
 import com.navercorp.nid.oauth.domain.enum.NidOAuthLoginState
 import com.navercorp.nid.oauth.domain.exception.NidOAuthException
-import com.navercorp.nid.oauth.domain.usecase.Disconnect
-import com.navercorp.nid.oauth.domain.usecase.GetClientInfo
-import com.navercorp.nid.oauth.domain.usecase.GetOAuthInfo
-import com.navercorp.nid.oauth.domain.usecase.Logout
-import com.navercorp.nid.oauth.domain.usecase.SetUpOAuthInfo
+import com.navercorp.nid.oauth.domain.usecase.*
 import com.navercorp.nid.oauth.util.NidOAuthCallback
 import com.navercorp.nid.profile.domain.usecase.FetchUserProfile
 import com.navercorp.nid.profile.domain.vo.NidProfile
 import com.navercorp.nid.profile.domain.vo.NidProfileMap
 import com.navercorp.nid.profile.util.NidProfileCallback
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -69,14 +60,16 @@ object NidOAuth {
     /**
      * 에러 핸들러가 포함된 IO 스코프
      */
-    fun createErrorHandlingIoScope(
-        errorHandle: ((Throwable) -> Unit)? = null,
-    ) = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
-        NidLog.e(TAG, "CoroutineExceptionHandler got $throwable")
-        CoroutineScope(Dispatchers.Main).launch {
-            errorHandle?.invoke(throwable)
-        }
-    })
+    fun createErrorHandlingIoScope(errorHandle: ((Throwable) -> Unit)? = null) =
+        CoroutineScope(
+            Dispatchers.IO +
+                    CoroutineExceptionHandler { _, throwable ->
+                        NidLog.e(TAG, "CoroutineExceptionHandler got $throwable")
+                        CoroutineScope(Dispatchers.Main).launch {
+                            errorHandle?.invoke(throwable)
+                        }
+                    },
+        )
 
     /**
      * 네이버앱에 대한 market link 팝업의 노출 여부 결정
@@ -164,7 +157,7 @@ object NidOAuth {
         errorHandle = { throwable ->
             _isDataInitializing.set(false)
             initCallback?.onFailure(throwable as Exception)
-        }
+        },
     ).launch {
         // 데이터 초기화 진행 세팅
         _isDataInitializing.set(true)
@@ -234,7 +227,7 @@ object NidOAuth {
             return applicationContext
         } else {
             throw NidOAuthException(
-                message = "Need to call NidOAuth.initialize(context, clientId, clientSecret, clientName) first."
+                message = "Need to call NidOAuth.initialize(context, clientId, clientSecret, clientName) first.",
             )
         }
     }
@@ -244,9 +237,7 @@ object NidOAuth {
      *
      * @param enabled 로그 출력 여부
      */
-    fun setLogEnabled(
-        enabled: Boolean
-    ) {
+    fun setLogEnabled(enabled: Boolean) {
         NidLog.setLogEnabled(enabled)
     }
 
@@ -266,7 +257,7 @@ object NidOAuth {
      */
     fun requestLogin(
         context: Context,
-        launcher: ActivityResultLauncher<Intent>
+        launcher: ActivityResultLauncher<Intent>,
     ) {
         if (!isReadyForOAuth()) return
 
@@ -285,7 +276,7 @@ object NidOAuth {
      */
     fun requestLogin(
         context: Context,
-        callback: NidOAuthCallback
+        callback: NidOAuthCallback,
     ) {
         if (!isReadyForOAuth()) return
 
@@ -303,7 +294,7 @@ object NidOAuth {
      */
     fun repromptPermissions(
         context: Context,
-        launcher: ActivityResultLauncher<Intent>
+        launcher: ActivityResultLauncher<Intent>,
     ) {
         if (!isReadyForOAuth()) return
 
@@ -322,7 +313,7 @@ object NidOAuth {
      */
     fun repromptPermissions(
         context: Context,
-        callback: NidOAuthCallback
+        callback: NidOAuthCallback,
     ) {
         if (!isReadyForOAuth()) return
 
@@ -338,17 +329,16 @@ object NidOAuth {
      *
      * @param callback 로그아웃 결과를 받을 콜백
      */
-    fun logout(
-        callback: NidOAuthCallback,
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        logout.invoke()
-        withContext(Dispatchers.Main) {
-            callback.onSuccess()
+    fun logout(callback: NidOAuthCallback) =
+        createErrorHandlingIoScope { throwable ->
+            val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+            callback.onFailure(executionError.code, throwable.message ?: executionError.description)
+        }.launch {
+            logout.invoke()
+            withContext(Dispatchers.Main) {
+                callback.onSuccess()
+            }
         }
-    }
 
     /**
      * 지난 로그인 시도가 실패한 경우 Error code 반환
@@ -432,17 +422,18 @@ object NidOAuth {
         return NidOAuthLoginState.OK
     }
 
-    private fun isOAuthClientIdInitialized(): Boolean = try {
-        val isClientIdValid = !(getClientInfo.getClientId().isNullOrEmpty())
-        val isClientSecretValid = !(getClientInfo.getClientSecret().isNullOrEmpty())
-        val isClientNameValid = !(getClientInfo.getClientId().isNullOrEmpty())
-        val isCallbackUrlValid = !(getClientInfo.getCallbackUrl().isNullOrEmpty())
+    private fun isOAuthClientIdInitialized(): Boolean =
+        try {
+            val isClientIdValid = !(getClientInfo.getClientId().isNullOrEmpty())
+            val isClientSecretValid = !(getClientInfo.getClientSecret().isNullOrEmpty())
+            val isClientNameValid = !(getClientInfo.getClientId().isNullOrEmpty())
+            val isCallbackUrlValid = !(getClientInfo.getCallbackUrl().isNullOrEmpty())
 
-        isClientNameValid && isClientIdValid && isClientSecretValid && isCallbackUrlValid
-    } catch (e: Exception) {
-        NidLog.e(TAG, "isOAuthClientIdInitialized() Exception: ${e.message}")
-        false
-    }
+            isClientNameValid && isClientIdValid && isClientSecretValid && isCallbackUrlValid
+        } catch (e: Exception) {
+            NidLog.e(TAG, "isOAuthClientIdInitialized() Exception: ${e.message}")
+            false
+        }
 
     /**
      * OAuth 요청을 수행할 수 있는 상태인지 반환
@@ -475,13 +466,13 @@ object NidOAuth {
      * @param sdkState 현재 SDK 상태
      * @return OAuth 요청 가능 여부
      */
-    private fun isOAuthReady(sdkState: NidOAuthLoginState): Boolean {
-        return when (sdkState) {
+    private fun isOAuthReady(sdkState: NidOAuthLoginState): Boolean =
+        when (sdkState) {
             NidOAuthLoginState.NEED_INIT,
-            NidOAuthLoginState.OAUTH_DATA_INITIALIZING-> false
+            NidOAuthLoginState.OAUTH_DATA_INITIALIZING,
+                -> false
             else -> true
         }
-    }
 
     /**
      * 네이버 아이디와 애플리케이션의 연동 해제
@@ -489,70 +480,67 @@ object NidOAuth {
      *
      * @param callback 결과값을 받을 콜백
      */
-    fun disconnect(
-        callback: NidOAuthCallback
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val disconnectResult = disconnect()
-        if (!disconnectResult.isDisconnectSuccess) {
-            setUpOauthInfo.setUpLastErrorInfo(
-                errorCode = disconnectResult.error.code,
-                errorDesc = disconnectResult.errorDescription
-            )
-            withContext(Dispatchers.Main) {
-                callback.onFailure(disconnectResult.error.code, disconnectResult.errorDescription)
-            }
-        } else {
-            logout()
-            withContext(Dispatchers.Main) {
-                callback.onSuccess()
+    fun disconnect(callback: NidOAuthCallback) =
+        createErrorHandlingIoScope { throwable ->
+            val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+            callback.onFailure(executionError.code, throwable.message ?: executionError.description)
+        }.launch {
+            val disconnectResult = disconnect()
+            if (!disconnectResult.isDisconnectSuccess) {
+                setUpOauthInfo.setUpLastErrorInfo(
+                    errorCode = disconnectResult.error.code,
+                    errorDesc = disconnectResult.errorDescription,
+                )
+                withContext(Dispatchers.Main) {
+                    callback.onFailure(disconnectResult.error.code, disconnectResult.errorDescription)
+                }
+            } else {
+                logout()
+                withContext(Dispatchers.Main) {
+                    callback.onSuccess()
+                }
             }
         }
-    }
 
     /**
      * 사용자의 프로필 정보 반환
      *
      * @param callback 결과값을 받을 콜백
      */
-    fun getUserProfile(
-        callback: NidProfileCallback<NidProfile>
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val accessToken = getOAuthInfo.getAccessToken().orEmpty()
-        val profileResult = fetchUserProfile.getUserProfile(accessToken)
-        withContext(Dispatchers.Main) {
-            if (profileResult.isValid) {
-                callback.onSuccess(profileResult)
-            } else {
-                callback.onFailure(profileResult.error.code, profileResult.errorDescription)
+    fun getUserProfile(callback: NidProfileCallback<NidProfile>) =
+        createErrorHandlingIoScope { throwable ->
+            val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+            callback.onFailure(executionError.code, throwable.message ?: executionError.description)
+        }.launch {
+            val accessToken = getOAuthInfo.getAccessToken().orEmpty()
+            val profileResult = fetchUserProfile.getUserProfile(accessToken)
+            withContext(Dispatchers.Main) {
+                if (profileResult.isValid) {
+                    callback.onSuccess(profileResult)
+                } else {
+                    callback.onFailure(profileResult.error.code, profileResult.errorDescription)
+                }
             }
         }
-    }
 
     /**
      * 사용자의 프로필 정보를 map 형태로 반환
      *
      * @param callback 결과값을 받을 콜백
      */
-    fun getUserProfileMap(
-        callback: NidProfileCallback<NidProfileMap>
-    ) = createErrorHandlingIoScope { throwable ->
-        val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
-        callback.onFailure(executionError.code, throwable.message ?: executionError.description)
-    }.launch {
-        val accessToken = getOAuthInfo.getAccessToken().orEmpty()
-        val profileMapResult = fetchUserProfile.getUserProfileMap(accessToken)
-        withContext(Dispatchers.Main) {
-            if (profileMapResult.isValid) {
-                callback.onSuccess(profileMapResult)
-            } else {
-                callback.onFailure(profileMapResult.error.code, profileMapResult.errorDescription)
+    fun getUserProfileMap(callback: NidProfileCallback<NidProfileMap>) =
+        createErrorHandlingIoScope { throwable ->
+            val executionError = NidOAuthErrorCode.SDK_EXECUTION_ERROR
+            callback.onFailure(executionError.code, throwable.message ?: executionError.description)
+        }.launch {
+            val accessToken = getOAuthInfo.getAccessToken().orEmpty()
+            val profileMapResult = fetchUserProfile.getUserProfileMap(accessToken)
+            withContext(Dispatchers.Main) {
+                if (profileMapResult.isValid) {
+                    callback.onSuccess(profileMapResult)
+                } else {
+                    callback.onFailure(profileMapResult.error.code, profileMapResult.errorDescription)
+                }
             }
         }
-    }
 }

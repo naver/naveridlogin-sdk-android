@@ -22,6 +22,7 @@ import com.navercorp.nid.oauth.domain.vo.LoginInfo
 import com.navercorp.nid.oauth.view.NidProgressDialog
 import com.navercorp.nid.oauth.viewModel.NidOAuthBridgeViewModel
 import com.nhn.android.oauth.R
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,13 +39,15 @@ import kotlinx.coroutines.launch
  * access token 가져오는 걸 실패하는 경우엔 로그인 창을 보여줌 (네이버앱 or 커스텀탭 호출)
  */
 class NidOAuthBridgeActivity : AppCompatActivity() {
-
     companion object {
         private const val TAG = "NidOAuthBridgeActivity"
         private const val ORIENTATION = "orientation"
         private const val AUTH_TYPE = "auth_type"
 
-        fun getIntent(context: Context, authType: String? = null): Intent =
+        fun getIntent(
+            context: Context,
+            authType: String? = null,
+        ): Intent =
             Intent(context, NidOAuthBridgeActivity::class.java).apply {
                 putExtra(ORIENTATION, context.resources.configuration.orientation)
                 authType?.let { putExtra(AUTH_TYPE, it) }
@@ -63,21 +66,21 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         SetUpOAuthInfo(NidServiceLocator.provideOAuthRepository())
     }
 
-    private val naverappLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        viewModel.isNotForcedFinish()
+    private val naverappLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            viewModel.isNotForcedFinish()
 
-        requestLogin(result.data)
-    }
+            requestLogin(result.data)
+        }
 
-    private val customTabLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        viewModel.isNotForcedFinish()
+    private val customTabLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            viewModel.isNotForcedFinish()
 
-        requestLogin(result.data)
-    }
+            requestLogin(result.data)
+        }
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         NidLog.d(TAG, "called onCreate()")
 
@@ -120,7 +123,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             } else {
                 progress.hideProgress()
             }
-
         }
     }
 
@@ -132,7 +134,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 각 상황별로 네이버 로그인을 진행할 액티비티를 실행
-     * @param mOAuthLoginData 네아로 메타 정보
      */
     private suspend fun startLoginActivity() {
         NidLog.d(TAG, "startLoginActivity()")
@@ -169,14 +170,15 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 네이버 앱으로 로그인 시도
-     * @param loginData 네아로 메타 정보
      * @return 실행 여부
      */
     private suspend fun tryOAuthByNaverapp(): Boolean {
-        val intent = NidOAuthIntent.Builder(this)
-            .setType(NidOAuthIntent.Type.NAVER_APP)
-            .setAuthType(authType)
-            .build()
+        val intent =
+            NidOAuthIntent
+                .Builder(this)
+                .setType(NidOAuthIntent.Type.NAVER_APP)
+                .setAuthType(authType)
+                .build()
         return if (intent == null) {
             false
         } else if (intent.data != null) {
@@ -200,14 +202,15 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
     /**
      * 커스텀 탭으로 로그인 시도
-     * @param loginData 네아로 메타 정보
      * @return 실행 여부
      */
     private suspend fun tryOAuthByCustomTab(): Boolean {
-        val intent = NidOAuthIntent.Builder(this)
-            .setType(NidOAuthIntent.Type.CUSTOM_TABS)
-            .setAuthType(authType)
-            .build()
+        val intent =
+            NidOAuthIntent
+                .Builder(this)
+                .setType(NidOAuthIntent.Type.CUSTOM_TABS)
+                .setAuthType(authType)
+                .build()
         return if (intent == null) {
             false
         } else {
@@ -221,57 +224,55 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
      * - 로그인 결과를 가지고 AccessToken / RefreshToken 발급 요청
      */
 
-    private fun requestLogin(
-        data: Intent?,
-    ) = CoroutineScope(Dispatchers.Main).launch {
-        if (data == null) {
-            finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
-            return@launch
+    private fun requestLogin(data: Intent?) =
+        lifecycleScope.launch {
+            if (data == null) {
+                finishWithErrorResult(NidOAuthErrorCode.CLIENT_USER_CANCEL)
+                return@launch
+            }
+
+            val state = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_STATE)
+            val code = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_CODE)
+            val errorCode = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
+            val errorDescription = data.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION)
+            val loginInfo =
+                LoginInfo(
+                    oauthCode = code,
+                    oauthState = state,
+                    errorCode = errorCode,
+                    errorDesc = errorDescription,
+                )
+
+            if (code.isNullOrEmpty()) {
+                finishWithErrorResult(data)
+            } else {
+                login(loginInfo)
+            }
         }
 
-        val state = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_STATE)
-        val code = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_CODE)
-        val errorCode = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
-        val errorDescription = data.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION)
-        val loginInfo = LoginInfo(
-            oauthCode = code,
-            oauthState = state,
-            errorCode = errorCode,
-            errorDesc = errorDescription
-        )
-
-        if (code.isNullOrEmpty()) {
-            finishWithErrorResult(data)
-        } else {
-            login(loginInfo)
-        }
-    }
-
-    private suspend fun login(
-        loginInfo: LoginInfo,
-    ) {
+    private suspend fun login(loginInfo: LoginInfo) {
         val progressDialog = NidProgressDialog(this@NidOAuthBridgeActivity)
         progressDialog.showProgress(R.string.naveroauthlogin_string_getting_token)
 
         val callback = NidOAuth.oauthLoginCallback
-        if (callback != null) {
+        runCatching {
             val oauthToken = viewModel.requestLogin(loginInfo)
             if (oauthToken.isOAuthInterrupted || !oauthToken.isOAuthSuccess) {
-                callback.onFailure(oauthToken.error.code, oauthToken.errorDescription)
+                callback?.onFailure(oauthToken.error.code, oauthToken.errorDescription)
+                    ?: setResult(RESULT_CANCELED)
             } else {
-                callback.onSuccess()
+                callback?.onSuccess() ?: setResult(RESULT_OK)
             }
-        } else {
-            val oauthToken = viewModel.requestLogin(loginInfo)
-            if (oauthToken.isOAuthInterrupted || !oauthToken.isOAuthSuccess) {
-                setResult(RESULT_CANCELED)
-            } else {
-                setResult(RESULT_OK)
+        }.onFailure { throwable ->
+            if ((throwable is CancellationException).not()) {
+                val unknownError = NidOAuthErrorCode.ERROR_NO_CATAGORIZED
+                callback?.onFailure(unknownError.code, unknownError.description)
+                    ?: setResult(RESULT_CANCELED)
             }
         }
 
-        progressDialog.hideProgress()
-        if (!this.isFinishing) {
+        if (!isFinishing && !isDestroyed) {
+            progressDialog.hideProgress()
             finish()
         }
     }
@@ -298,10 +299,10 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
             val errorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             setUpLastErrorInfo(
                 errorCode = errorCode.code,
-                errorDesc = "OAuthLoginActivity is destroyed."
+                errorDesc = "NidOAuthBridgeActivity is destroyed.",
             )
 
-            NidOAuth.oauthLoginCallback?.onFailure(errorCode.code, "OAuthLoginActivity is destroyed.")
+            NidOAuth.oauthLoginCallback?.onFailure(errorCode.code, "NidOAuthBridgeActivity is destroyed.")
             setResult(RESULT_CANCELED)
         }
     }
@@ -311,22 +312,27 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
      */
 
     private fun finishWithErrorResult(intent: Intent) {
-        val errorCode = intent.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE)
-        val errorDesc = intent.getStringExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION).orEmpty()
-        oauthFinish(intent, NidOAuthErrorCode.INSTANCE.fromString(errorCode), errorDesc)
+        val errorCode = intent.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE)
+        val errorDesc = intent.getStringExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION).orEmpty()
+        oauthFinish(intent, NidOAuthErrorCode.fromString(errorCode), errorDesc)
     }
 
     private fun finishWithErrorResult(errCode: NidOAuthErrorCode) {
-        val intent = Intent().apply {
-            // TODO code 넣을때 state체크 처리해야 함.
-            putExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_CODE, errCode.code)
-            putExtra(NidOAuthIntent.Companion.OAUTH_RESULT_ERROR_DESCRIPTION, errCode.description)
-        }
+        val intent =
+            Intent().apply {
+                // TODO code 넣을때 state체크 처리해야 함.
+                putExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_CODE, errCode.code)
+                putExtra(NidOAuthIntent.OAUTH_RESULT_ERROR_DESCRIPTION, errCode.description)
+            }
 
         oauthFinish(intent, errCode, errCode.description)
     }
 
-    private fun oauthFinish(intent: Intent, errorCode: NidOAuthErrorCode, errorDescription: String) {
+    private fun oauthFinish(
+        intent: Intent,
+        errorCode: NidOAuthErrorCode,
+        errorDescription: String,
+    ) {
         setUpLastErrorInfo(
             errorCode = errorCode.code,
             errorDesc = errorDescription,
@@ -345,7 +351,7 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         try {
             setUpOAuthInfo.setUpLastErrorInfo(
                 errorCode = errorCode,
-                errorDesc = errorDesc
+                errorDesc = errorDesc,
             )
         } catch (e: Exception) {
             NidLog.e(TAG, "setUpLastErrorInfo error : ${e.message}")
