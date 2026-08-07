@@ -1,7 +1,7 @@
 package com.navercorp.nid.oauth.data.repository
 
 import com.navercorp.nid.core.data.datastore.DataStoreKey
-import com.navercorp.nid.core.data.datastore.NidOAuthLocalDataSource
+import com.navercorp.nid.core.data.datastore.OAuthLocalDataSource
 import com.navercorp.nid.core.data.errorcode.NidOAuthErrorCode
 import com.navercorp.nid.core.log.NidLog
 import com.navercorp.nid.oauth.data.datasource.NidOAuthRemoteDataSource
@@ -23,9 +23,9 @@ import java.security.SecureRandom
  * @param nidOAuthRemoteDataSource OAuth 관련 Api 호출을 위한 dataSource
  */
 internal class NidOAuthRepository(
-    private val nidOAuthLocalDataSource: NidOAuthLocalDataSource,
+    private val nidOAuthLocalDataSource: OAuthLocalDataSource,
     private val nidOAuthRemoteDataSource: NidOAuthRemoteDataSource,
-): OAuthRepository {
+) : OAuthRepository {
     private val mutex = Mutex()
 
     /**
@@ -79,7 +79,7 @@ internal class NidOAuthRepository(
         saveLastErrorInfo(oauthResult.error.code, oauthResult.errorDescription)
 
         // 현재 시간 + expiresIn 으로 expiresAt 계산
-        val expiresAt = System.currentTimeMillis() / 1000 + oauthResult.expiresIn
+        val expiresAt = System.currentTimeMillis() / MILLISECONDS_PER_SECOND + oauthResult.expiresIn
         saveAccessTokenExpiresAt(expiresAt)
     }
 
@@ -95,7 +95,7 @@ internal class NidOAuthRepository(
             ?: return null
 
         // expires time 검증 후 return 해줌
-        val isTokenValid = System.currentTimeMillis() / 1000 - getAccessTokenExpiresAt() < 0
+        val isTokenValid = System.currentTimeMillis() / MILLISECONDS_PER_SECOND - getAccessTokenExpiresAt() < 0
         return if (isTokenValid) {
             token
         } else {
@@ -199,7 +199,7 @@ internal class NidOAuthRepository(
         var state = nidOAuthLocalDataSource.load(DataStoreKey.OAUTH_INIT_STATE.key, null)
         if (state != null) return state
 
-        state = BigInteger(130, SecureRandom()).toString(32)
+        state = BigInteger(STATE_BIT_LENGTH, SecureRandom()).toString(RADIX_BASE)
         try {
             state = URLEncoder.encode(state, "UTF-8")
         } catch (e: Exception) {
@@ -230,5 +230,8 @@ internal class NidOAuthRepository(
 
     companion object {
         private const val TAG = "NidOAuthRepository"
+        private const val MILLISECONDS_PER_SECOND = 1000
+        private const val STATE_BIT_LENGTH = 130
+        private const val RADIX_BASE = 32
     }
 }

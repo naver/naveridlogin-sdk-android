@@ -1,10 +1,10 @@
 object Configurations {
     /* Module */
-    const val compileSdkVersion = 35
-    const val targetSdkVersion = 35
+    const val compileSdkVersion = 36
+    const val targetSdkVersion = 36
     const val minSdkVersion = 21
 
     /* Version */
-    const val moduleVersionName = "5.11.2"
-    const val moduleVersionCode = 5_11_02
+    const val moduleVersionName = "5.12.0"
+    const val moduleVersionCode = 5_12_00
 }

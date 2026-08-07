@@ -1,5 +1,9 @@
 package com.navercorp.nid
 
+import android.content.Context
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import com.navercorp.nid.core.data.datastore.NidDataMigrationManager
 import com.navercorp.nid.core.data.datastore.NidOAuthLocalDataSource
 import com.navercorp.nid.core.data.interceptor.NetworkConnectionInterceptor
 import com.navercorp.nid.core.data.interceptor.UserAgentInterceptor
@@ -83,6 +87,37 @@ internal object NidServiceLocator {
     )
 
     private fun provideNidOAuthLocalDataSource(): NidOAuthLocalDataSource = NidOAuthLocalDataSource
+
+    /**
+     * NidDataMigrationManager dependency (singleton)
+     */
+    private val dataMigrationManager: NidDataMigrationManager by lazy {
+        NidDataMigrationManager(
+            localDataSource = provideNidOAuthLocalDataSource(),
+            contextProvider = { NidOAuth.getApplicationContext() },
+            sharedPrefsFactory = { context ->
+                context.getSharedPreferences(
+                    NidDataMigrationManager.OLD_OAUTH_LOGIN_PREF_NAME,
+                    Context.MODE_PRIVATE
+                )
+            },
+            encryptedPrefsFactory = { context ->
+                val masterKey = MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .setUserAuthenticationRequired(false)
+                    .build()
+                EncryptedSharedPreferences.create(
+                    context,
+                    NidDataMigrationManager.ENCRYPTED_OAUTH_LOGIN_PREF_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+            }
+        )
+    }
+
+    fun provideMigrationManager(): NidDataMigrationManager = dataMigrationManager
 
     /**
      * OAuthRepository dependency

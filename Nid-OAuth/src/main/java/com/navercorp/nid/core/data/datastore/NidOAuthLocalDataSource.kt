@@ -27,7 +27,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import kotlin.Int.Companion.SIZE_BYTES
 
-object NidOAuthLocalDataSource {
+internal object NidOAuthLocalDataSource : OAuthLocalDataSource {
     private const val TAG = "NidDataStore"
 
     private const val DATA_STORE_NAME = "NidDataStore"
@@ -138,37 +138,37 @@ object NidOAuthLocalDataSource {
     /**
      * save data
      */
-    suspend fun save(key: String, value: Int) {
+    override suspend fun save(key: String, value: Int) {
         val typeKey = getIntKey(key)
         val byteArray = value.toByteArray()
         saveData(typeKey, byteArray)
     }
 
-    suspend fun save(key: String, value: Long) {
+    override suspend fun save(key: String, value: Long) {
         val typeKey = getLongKey(key)
         val byteArray = value.toByteArray()
         saveData(typeKey, byteArray)
     }
 
-    suspend fun save(key: String, value: String?) {
+    override suspend fun save(key: String, value: String?) {
         val typeKey = getStringKey(key)
         val byteArray = value?.toByteArray() ?: return
         saveData(typeKey, byteArray)
     }
 
-    suspend fun save(key: String, value: Boolean) {
+    override suspend fun save(key: String, value: Boolean) {
         val typeKey = getBooleanKey(key)
         val byteArray = value.toByteArray()
         saveData(typeKey, byteArray)
     }
 
-    suspend fun save(key: String, value: Float) {
+    override suspend fun save(key: String, value: Float) {
         val typeKey = getFloatKey(key)
         val byteArray = value.toByteArray()
         saveData(typeKey, byteArray)
     }
 
-    suspend fun save(key: String, value: Double) {
+    override suspend fun save(key: String, value: Double) {
         val typeKey = getDoubleKey(key)
         val byteArray = value.toByteArray()
         saveData(typeKey, byteArray)
@@ -185,42 +185,42 @@ object NidOAuthLocalDataSource {
     /**
      * load data
      */
-    fun load(key: String, defaultValue: Int): Int {
+    override fun load(key: String, defaultValue: Int): Int {
         val typeKey = getIntKey(key)
         return loadData(typeKey)?.let {
             ByteBuffer.wrap(it).int
         } ?: defaultValue
     }
 
-    fun load(key: String, defaultValue: Long): Long {
+    override fun load(key: String, defaultValue: Long): Long {
         val typeKey = getLongKey(key)
         return loadData(typeKey)?.let {
             ByteBuffer.wrap(it).long
         } ?: defaultValue
     }
 
-    fun load(key: String, defaultValue: String?): String? {
+    override fun load(key: String, defaultValue: String?): String? {
         val typeKey = getStringKey(key)
         return loadData(typeKey)?.let {
             String(it, Charsets.UTF_8)
         } ?: defaultValue
     }
 
-    fun load(key: String, defaultValue: Boolean): Boolean {
+    override fun load(key: String, defaultValue: Boolean): Boolean {
         val typeKey = getBooleanKey(key)
         return loadData(typeKey)?.let {
             it[0] == 1.toByte()
         } ?: defaultValue
     }
 
-    fun load(key: String, defaultValue: Float): Float {
+    override fun load(key: String, defaultValue: Float): Float {
         val typeKey = getFloatKey(key)
         return loadData(typeKey)?.let {
             ByteBuffer.wrap(it).float
         } ?: defaultValue
     }
 
-    fun load(key: String, defaultValue: Double): Double {
+    override fun load(key: String, defaultValue: Double): Double {
         val typeKey = getDoubleKey(key)
         return loadData(typeKey)?.let {
             ByteBuffer.wrap(it).double

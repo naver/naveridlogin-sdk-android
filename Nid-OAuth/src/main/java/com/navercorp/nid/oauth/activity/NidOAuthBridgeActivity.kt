@@ -88,8 +88,6 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
 
         NidLog.d(TAG, "onCreate() | isLoginActivityStarted : ${viewModel.getIsLoginActivityStarted()}")
 
-        viewModel.setIsRotated(false)
-
         if (!viewModel.getIsLoginActivityStarted()) {
             viewModel.startLoginActivity()
             NidLog.d(TAG, "onCreate() first init.")
@@ -295,7 +293,8 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
         super.onDestroy()
         NidLog.d(TAG, "called onDestroy()")
 
-        if (viewModel.getIsForceDestroyed() && !viewModel.getIsRotated()) {
+        // 구성 변경으로 인한 재생성 시의 destroy 는 강제 종료가 아니므로 실패 통보 대상에서 제외
+        if (viewModel.getIsForceDestroyed() && !isChangingConfigurations) {
             val errorCode = NidOAuthErrorCode.ACTIVITY_IS_SINGLE_TASK
             setUpLastErrorInfo(
                 errorCode = errorCode.code,
@@ -367,6 +366,5 @@ class NidOAuthBridgeActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         NidLog.d(TAG, "called onConfigurationChanged()")
-        viewModel.setIsRotated(true)
     }
 }

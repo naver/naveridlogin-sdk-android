@@ -2,6 +2,7 @@ package com.navercorp.nid.oauth.sample
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -11,6 +12,11 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.navercorp.nid.NidOAuth
 import com.navercorp.nid.oauth.domain.enum.LoginBehavior
 import com.navercorp.nid.oauth.sample.databinding.ActivityMainBinding
@@ -47,9 +53,57 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
+        binding.toolbar.title = title
+        applyEdgeToEdge()
         setContentView(binding.root)
 
         init()
+    }
+
+    private fun applyEdgeToEdge() {
+        // 화면 확장 36 미만 적용
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+        }
+
+        val actionBarSize = getActionBarSize()
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+            val systemBarInsets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+
+            val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomPadding = if (windowInsets.isVisible(WindowInsetsCompat.Type.ime())) {
+                maxOf(systemBarInsets.bottom, imeInsets.bottom)
+            } else {
+                systemBarInsets.bottom
+            }
+
+            binding.toolbar.updateLayoutParams {
+                height = systemBarInsets.top + actionBarSize
+            }
+
+            binding.toolbar.updatePadding(
+                left = systemBarInsets.left,
+                top = systemBarInsets.top,
+                right = systemBarInsets.right
+            )
+
+            binding.container.updatePadding(
+                left = systemBarInsets.left,
+                right = systemBarInsets.right,
+                bottom = bottomPadding
+            )
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun getActionBarSize(): Int {
+        val typedArray = obtainStyledAttributes(intArrayOf(androidx.appcompat.R.attr.actionBarSize))
+        val actionBarSize = typedArray.getDimensionPixelSize(0, 0)
+        typedArray.recycle()
+        return actionBarSize
     }
 
     private fun init() {
