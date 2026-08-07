@@ -55,15 +55,6 @@ class NidOAuthBridgeViewModel : ViewModel() {
     fun getIsForceDestroyed(): Boolean = isForceDestroyed
 
     /**
-     * 화면 회전 여부 저장
-     */
-    private var isRotated = false
-    fun setIsRotated(value: Boolean) {
-        isRotated = value
-    }
-    fun getIsRotated(): Boolean = isRotated
-
-    /**
      * 로그인 Activity 시작 여부 저장
      */
     private var isLoginActivityStarted = false

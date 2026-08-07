@@ -80,5 +80,5 @@ fun Exception?.toMessage(): String {
     if (this == null) {
         return "Unknown Exception"
     }
-    return this.localizedMessage
+    return this.localizedMessage ?: "Unknown Exception"
 }

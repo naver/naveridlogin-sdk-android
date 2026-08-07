@@ -53,7 +53,7 @@ android {
 dependencies {
     // 네아로 SDK from Project
     debugImplementation(project(":Nid-OAuth"))
-    releaseImplementation("com.navercorp.nid:oauth:5.11.2")
+    releaseImplementation("com.navercorp.nid:oauth:${Configurations.moduleVersionName}")
 
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

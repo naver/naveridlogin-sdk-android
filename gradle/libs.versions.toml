@@ -1,6 +1,6 @@
 [versions]
 # Kotlin
-kotlin = "2.1.0"
+kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.0"
 
 # AndroidX
@@ -16,7 +16,7 @@ androidx-datastore = "1.1.7"
 androidx-lifecycle-process = "2.9.3"
 
 # Android Gradle Plugin
-android-gradle-plugin = "8.6.1"
+android-gradle-plugin = "8.9.1"
 
 # HTTP Client
 retrofit = "2.9.0"

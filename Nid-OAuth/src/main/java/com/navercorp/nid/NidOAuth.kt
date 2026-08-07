@@ -6,7 +6,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.navercorp.nid.core.data.datastore.NidDataMigrationManager
 import com.navercorp.nid.core.data.datastore.NidOAuthInitializingCallback
 import com.navercorp.nid.core.data.datastore.NidOAuthLocalDataSource
 import com.navercorp.nid.core.data.errorcode.NidOAuthErrorCode
@@ -167,7 +166,7 @@ object NidOAuth {
             // 1. 데이터 마이그레이션 수행
             // SharedPreferences/EncryptedPreferences -> DataStore
             // 마이그레이션 실패해도 내부적으로 에러 처리, 전파 x
-            NidDataMigrationManager.migrateDataFromLegacyStores()
+            NidServiceLocator.provideMigrationManager().migrateDataFromLegacyStores()
 
             // 2. 데이터 초기화
             // 마이그레이션 실패 여부와 상관없이 초기 데이터가 새롭게 저장
@@ -300,8 +299,8 @@ object NidOAuth {
 
         oauthLoginCallback = null
 
-        val repromptAuthTYpe = "reprompt"
-        val intent = NidOAuthBridgeActivity.getIntent(context, repromptAuthTYpe)
+        val repromptAuthType = "reprompt"
+        val intent = NidOAuthBridgeActivity.getIntent(context, repromptAuthType)
         launcher.launch(intent)
     }
 

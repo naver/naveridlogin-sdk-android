@@ -22,6 +22,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
         const val SAVE_CUSTOM_TAB_OPEN = "isCustomTabOpen"
         const val ACTION_NAVER_CUSTOM_TAB = "ACTION_NAVER_3RDPARTY_CUSTOM_TAB"
+        private const val CUSTOM_TAB_CANCEL_DELAY = 500L
     }
 
     private var isCustomTabOpen = false
@@ -39,7 +40,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
         if (isCustomTabOpen) {
             CoroutineScope(Dispatchers.Main).launch {
-                delay(500)
+                delay(CUSTOM_TAB_CANCEL_DELAY)
                 if (!isCalledNewIntent) {
                     responseError(null, NidOAuthErrorCode.CLIENT_USER_CANCEL.code, NidOAuthErrorCode.CLIENT_USER_CANCEL.description)
                 }
@@ -72,7 +73,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         val code = intent.getStringExtra("code")
         val state = intent.getStringExtra("state")
         val error = intent.getStringExtra("error")
-        val errorDescription = getDecodedString(intent.getStringExtra("error_description"));
+        val errorDescription = getDecodedString(intent.getStringExtra("error_description"))
 
         if (!code.isNullOrEmpty() || !error.isNullOrEmpty()) {
             responseResult(state, code, error, errorDescription)
@@ -86,6 +87,7 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
 
         if (NidOAuth.isInitialized().not()) {
             responseError(null, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.code, NidOAuthErrorCode.SDK_IS_NOT_INITIALIZED.description)
+            return
         }
 
         lifecycleScope.launch {
@@ -116,7 +118,6 @@ class NidOAuthCustomTabActivity : AppCompatActivity() {
         }
         returnResult(intent)
     }
-
 
     private fun responseError(
         state: String?,

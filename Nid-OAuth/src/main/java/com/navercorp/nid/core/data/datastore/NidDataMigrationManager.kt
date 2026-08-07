@@ -4,27 +4,18 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
-import com.navercorp.nid.NidOAuth
 import com.navercorp.nid.core.log.NidLog
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
-object NidDataMigrationManager {
-    private const val TAG = "NidDataMigrationManager"
-    private const val DEFAULT_TRY_COUNT = 3
+internal class NidDataMigrationManager(
+    private val localDataSource: OAuthLocalDataSource,
+    private val contextProvider: () -> Context,
+    private val sharedPrefsFactory: (Context) -> SharedPreferences,
+    private val encryptedPrefsFactory: (Context) -> SharedPreferences
+) {
     private val appContext: Context
-        get() = NidOAuth.getApplicationContext()
-    private val masterKey: MasterKey by lazy {
-        MasterKey.Builder(appContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setUserAuthenticationRequired(false)
-            .build()
-    }
-    private val encryptedPrefs: SharedPreferences by lazy {
-        createEncryptedPreferences()
-    }
+        get() = contextProvider()
 
     /**
      * 마이그레이션 진행 중인지 여부 반환
@@ -34,21 +25,6 @@ object NidDataMigrationManager {
     private val _isMigrating = AtomicBoolean(false)
     val isMigrating: Boolean
         get() = _isMigrating.get()
-
-    /**
-     * SharedPreferences 파일 이름 상수
-     */
-    private const val OLD_OAUTH_LOGIN_PREF_NAME = "NaverOAuthLoginPreferenceData"
-    private const val ENCRYPTED_OAUTH_LOGIN_PREF_NAME = "NaverOAuthLoginEncryptedPreferenceData"
-
-    /**
-     * dataStore 마이그레이션 필요 여부 판단 core data key
-     */
-    private enum class CoreClientInfo(val key: String) {
-        CLIENT_ID("CLIENT_ID"),
-        CLIENT_SECRET("CLIENT_SECRET"),
-        CLIENT_NAME("CLIENT_NAME")
-    }
 
     /**
      * 모든 저장소에서 NidDataStore로 마이그레이션 진행
@@ -83,12 +59,12 @@ object NidDataMigrationManager {
             // 마이그레이션 진행
             if (hasEncryptedPreferences) {
                 // EncryptedPreferences -> DataStore 마이그레이션 및 정리
-                val encryptedPrefs = encryptedPrefs
+                val encryptedPrefs = encryptedPrefsFactory(appContext)
                 migrateFromSharedPreferencesToDataStore(encryptedPrefs, ENCRYPTED_OAUTH_LOGIN_PREF_NAME)
                 clearPreferencesData(encryptedPrefs)
             } else {
                 // SharedPreferences -> DataStore 마이그레이션 및 정리
-                val sharedPrefs = appContext.getSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME, Context.MODE_PRIVATE)
+                val sharedPrefs = sharedPrefsFactory(appContext)
                 migrateFromSharedPreferencesToDataStore(sharedPrefs, OLD_OAUTH_LOGIN_PREF_NAME)
                 clearPreferencesData(sharedPrefs)
             }
@@ -112,7 +88,7 @@ object NidDataMigrationManager {
     private fun hasDataInSharedPreferences(): Boolean {
         return try {
             getSharedPreferencesFile(OLD_OAUTH_LOGIN_PREF_NAME) ?: return false
-            val sharedPrefs = appContext.getSharedPreferences(OLD_OAUTH_LOGIN_PREF_NAME, Context.MODE_PRIVATE)
+            val sharedPrefs = sharedPrefsFactory(appContext)
             val allData = sharedPrefs.all
             allData.isNotEmpty() && allData.any { it.value != null }
         } catch (e: Exception) {
@@ -129,31 +105,13 @@ object NidDataMigrationManager {
     private fun hasDataInEncryptedPreferences(): Boolean {
         return try {
             getSharedPreferencesFile(ENCRYPTED_OAUTH_LOGIN_PREF_NAME) ?: return false
-            val encryptedPrefs = encryptedPrefs
+            val encryptedPrefs = encryptedPrefsFactory(appContext)
             val allData = encryptedPrefs.all
             allData.isNotEmpty() && allData.any { it.value != null }
         } catch (e: Exception) {
             NidLog.w(TAG, "Failed to check EncryptedPreferences data: ${e.message}")
             false
         }
-    }
-
-    /**
-     * EncryptedPreferences 인스턴스 획득
-     *
-     * @return EncryptedSharedPreferences 인스턴스
-     */
-    private fun createEncryptedPreferences(): SharedPreferences = try {
-        EncryptedSharedPreferences.create(
-            appContext,
-            ENCRYPTED_OAUTH_LOGIN_PREF_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-    } catch (e: Exception) {
-        NidLog.e(TAG, "Failed to create EncryptedSharedPreferences: ${e.message}")
-        throw e
     }
 
     /**
@@ -266,12 +224,12 @@ object NidDataMigrationManager {
      */
     private suspend fun saveData(key: String, value: Any?) {
         when (value) {
-            is String -> NidOAuthLocalDataSource.save(key, value)
-            is Int -> NidOAuthLocalDataSource.save(key, value)
-            is Long -> NidOAuthLocalDataSource.save(key, value)
-            is Boolean -> NidOAuthLocalDataSource.save(key, value)
-            is Float -> NidOAuthLocalDataSource.save(key, value)
-            is Double -> NidOAuthLocalDataSource.save(key, value)
+            is String -> localDataSource.save(key, value)
+            is Int -> localDataSource.save(key, value)
+            is Long -> localDataSource.save(key, value)
+            is Boolean -> localDataSource.save(key, value)
+            is Float -> localDataSource.save(key, value)
+            is Double -> localDataSource.save(key, value)
             else -> {
                 NidLog.w(TAG, "Unsupported data type for key: $key")
                 throw Exception("Failed to save data for key: $key")
@@ -300,9 +258,29 @@ object NidDataMigrationManager {
      */
     private suspend fun isMigrationNeeded(): Boolean = try {
         CoreClientInfo.entries.any {
-            NidOAuthLocalDataSource.load(it.key, null).isNullOrEmpty()
+            localDataSource.load(it.key, null).isNullOrEmpty()
         }
     } catch (_: Exception) {
         false
+    }
+
+    companion object {
+        private const val TAG = "NidDataMigrationManager"
+        private const val DEFAULT_TRY_COUNT = 3
+
+        /**
+         * SharedPreferences 파일 이름 상수
+         */
+        internal const val OLD_OAUTH_LOGIN_PREF_NAME = "NaverOAuthLoginPreferenceData"
+        internal const val ENCRYPTED_OAUTH_LOGIN_PREF_NAME = "NaverOAuthLoginEncryptedPreferenceData"
+
+        /**
+         * dataStore 마이그레이션 필요 여부 판단 core data key
+         */
+        private enum class CoreClientInfo(val key: String) {
+            CLIENT_ID("CLIENT_ID"),
+            CLIENT_SECRET("CLIENT_SECRET"),
+            CLIENT_NAME("CLIENT_NAME")
+        }
     }
 }
