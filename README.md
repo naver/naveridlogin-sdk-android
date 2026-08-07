@@ -22,7 +22,7 @@ features to your application.
 
 Naver Login for Android uses libraries below.
 
-- org.jetbrains.kotlin:kotlin-stdlib:2.1.0
+- org.jetbrains.kotlin:kotlin-stdlib:2.2.0
 - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.0
 - androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
@@ -60,7 +60,7 @@ Android용 네아로 SDK는 서드파티 애플리케이션에서 네이버 아�
 
 네아로 SDK에서 사용하는 라이브러리는 다음과 같습니다.
 
-- org.jetbrains.kotlin:kotlin-stdlib:2.1.0
+- org.jetbrains.kotlin:kotlin-stdlib:2.2.0
 - org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.0
 - androidx.appcompat:appcompat:1.3.1
 - androidx.legacy:legacy-support-core-utils:1.0.0
