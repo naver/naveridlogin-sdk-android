@@ -110,8 +110,8 @@ object NaverIdLoginSDK {
      * @param show if true, show detail-log.
      */
     @Deprecated(
-        message = "This method will be removed from v6.1.0. Use NidOAuth.showDevelopersLog(isShow) instead.",
-        replaceWith = ReplaceWith("NidOAuth.setLOgEnabled(enabled)"),
+        message = "This method will be removed from v6.1.0. Use NidOAuth.setLogEnabled(isShow) instead.",
+        replaceWith = ReplaceWith("NidOAuth.setLogEnabled(isShow)"),
     )
     fun showDevelopersLog(isShow: Boolean) = NidOAuth.setLogEnabled(isShow)
 

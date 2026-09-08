@@ -25,7 +25,7 @@ class NidOAuthLogin {
     private val ioScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
 
     @Deprecated(
-        message = "This method will be removed from v6.1.0. Use NidOAuth.requestLogin(cotext, callback) instead.",
+        message = "This method will be removed from v6.1.0. Use NidOAuth.requestLogin(context, callback) instead.",
         replaceWith = ReplaceWith("NidOAuth.requestLogin(context, callback)"),
     )
     fun callRefreshAccessTokenApi(callback: NidOAuthCallback) = ioScope.launch {
