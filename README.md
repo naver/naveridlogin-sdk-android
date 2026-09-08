@@ -2,16 +2,16 @@
 
 ## Naver Login Overview
 
-NAVER Login let users to use the OAuth 2.0-based security feature of NAVER when they are using non-NAVER services.
+NAVER Login lets users use the OAuth 2.0-based security feature of NAVER when they are using non-NAVER services.
 
-It is a convenient and secure way for users to log into your application with the NAVER ID and password; they do not have to remember their IDs and password of your application. It is recommended to add NAVER Login to your application if you want to make people who hate complicated signups to join your application or stop users leaving your application because they forget their accounts.
+It is a convenient and secure way for users to log into your application with the NAVER ID and password; they do not have to remember their IDs and password of your application. It is recommended to add NAVER Login to your application if you want to make people who hate complicated signups join your application or stop users leaving your application because they forget their accounts.
 
 ## Naver Login for Android
 
 The NAVER Login library for Android enables you to easily add the login, logout, and token management
 features to your application.
 
-**How to use NaverIdLogin SDK for Android? <small>(korean)</small>**
+**How to use NaverIdLogin SDK for Android? <small>(Korean)</small>**
 - [Refer to Github Wiki](https://github.com/naver/naveridlogin-sdk-android/wiki/%EC%B5%9C%EC%8B%A0%EB%B2%84%EC%A0%84-%EA%B0%80%EC%9D%B4%EB%93%9C)
 - [Naver-Id-Login Android SDK Tutorial Doc](https://developers.naver.com/docs/login/android)
 

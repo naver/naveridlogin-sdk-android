@@ -19,26 +19,26 @@ class ReleaseNidLog : INidLog {
     }
 
     override fun v(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 
     override fun d(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 
     override fun i(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 
     override fun w(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 
     override fun e(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 
     override fun wtf(tag: String, message: String) {
-        // Do nothings.
+        // Do nothing.
     }
 }
